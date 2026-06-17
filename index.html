@@ -280,6 +280,7 @@ tbody tr:hover td{background:var(--gris-50)}
       <div class="user-menu" onclick="doLogout()">
         <div class="user-avatar" id="uinit">--</div>
         <div class="user-name" id="uname">—</div>
+        <span id="rol-badge" style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px;border:1px solid rgba(255,255,255,0.2)">—</span>
       </div>
     </div>
   </div>
@@ -714,6 +715,47 @@ try { sb = window.supabase.createClient(SB_URL, SB_KEY, {
 const DEMO = !sb || false;
 
 // ═══════════════════════════════════════
+// ROL DEL USUARIO
+// ═══════════════════════════════════════
+let MI_ROL = null; // 'Administrador' | 'Gestor' | 'Lector'
+
+function esAdmin()  { return MI_ROL === 'Administrador'; }
+function esGestor() { return MI_ROL === 'Administrador' || MI_ROL === 'Gestor'; }
+function esLector() { return MI_ROL === 'Lector'; }
+
+async function cargarRol(userId) {
+  if (!userId) { MI_ROL = 'Lector'; return; }
+  try {
+    const { data } = await sb.from('perfiles').select('rol').eq('id', userId).single();
+    MI_ROL = data?.rol || 'Lector';
+  } catch { MI_ROL = 'Lector'; }
+}
+
+function aplicarRol() {
+  const itemSubir     = document.querySelector('[data-p="subir"]');
+  const itemHallazgos = document.querySelector('[data-p="hallazgos"]');
+  const itemReclamos  = document.querySelector('[data-p="reclamos"]');
+  const itemIndicadores = document.querySelector('[data-p="indicadores"]');
+
+  if (esLector()) {
+    if (itemSubir)       itemSubir.style.display = 'none';
+    if (itemHallazgos)   itemHallazgos.style.display = 'none';
+    if (itemReclamos)    itemReclamos.style.display = 'none';
+    if (itemIndicadores) itemIndicadores.style.display = 'none';
+  }
+
+  // Badge de rol en topbar
+  const badge = document.getElementById('rol-badge');
+  if (badge) {
+    badge.textContent = MI_ROL;
+    if (esAdmin())       { badge.style.background='rgba(255,255,255,0.2)'; badge.style.color='#fff'; }
+    else if (esGestor()) { badge.style.background='rgba(255,200,80,0.25)'; badge.style.color='#FFE082'; }
+    else                 { badge.style.background='rgba(255,255,255,0.1)'; badge.style.color='rgba(255,255,255,0.6)'; }
+  }
+}
+
+
+// ═══════════════════════════════════════
 // CARPETAS — estructura real de Newtrans
 // ═══════════════════════════════════════
 const CARPETAS = [
@@ -844,16 +886,18 @@ function doLogout() {
   document.getElementById('app').style.display = 'none';
 }
 
-function iniciarApp() {
+async function iniciarApp() {
   document.getElementById('login-screen').style.display = 'none';
   document.getElementById('app').style.display = 'block';
   const nom = currentUser?.nombre || currentUser?.email?.split('@')[0] || 'Usuario';
   const ini = nom.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
   document.getElementById('uinit').textContent = ini;
   document.getElementById('uname').textContent = nom;
+  // Cargar rol desde Supabase
+  await cargarRol(currentUser?.id);
+  aplicarRol();
   document.getElementById('wmsg').textContent =
-    `Bienvenido, ${nom}. ${DEMO ? '⚠️ Modo demo — configura Supabase para datos reales.' : 'ISO 9001:2015 · NT 147 · NT 208'}`;
-  // poblar selects
+    `Bienvenido, ${nom}. ${DEMO ? '⚠️ Modo demo.' : 'ISO 9001:2015 · NT 147 · NT 208'} · Rol: ${MI_ROL}`;
   poblarSelectCarpetas();
   go('inicio');
 }
@@ -916,6 +960,9 @@ function renderCarpetas() {
       </div>
     </div>`;
   }).join('');
+  // Ocultar botón subir si es lector
+  const btnSubir = document.querySelector('#page-carpetas .btn-p');
+  if (btnSubir) btnSubir.style.display = esLector() ? 'none' : 'inline-flex';
 }
 
 function verCarpeta(cid) {
@@ -933,8 +980,8 @@ function verCarpeta(cid) {
         <td>${d.responsable}</td>
         <td>${bEstado(d.estado)}</td>
         <td><div style="display:flex;gap:4px">
-          ${d.url?`<button class="btn btn-s btn-sm" onclick="window.open('${d.url}')">PDF</button>`:`<button class="btn btn-s btn-sm" disabled style="opacity:.4">PDF</button>`}
-          <button class="btn btn-r btn-sm" onclick="delDoc(${d.id})">✕</button>
+          ${d.url && !esLector()?`<button class="btn btn-s btn-sm" onclick="window.open('${d.url}')">PDF</button>`:(d.url && esLector()?`<span class="badge b-obs" style="font-size:10px">Sin descarga</span>`:`<button class="btn btn-s btn-sm" disabled style="opacity:.4">PDF</button>`)}
+          ${esAdmin()?`<button class="btn btn-r btn-sm" onclick="delDoc(${d.id})">✕</button>`:''}
         </div></td>
       </tr>`).join('')
     : '<tr><td colspan="7" style="text-align:center;padding:28px;color:var(--gris-500)">Sin documentos en esta carpeta. <a onclick="go(\'subir\')" style="color:var(--azul-med);cursor:pointer">Subir el primero →</a></td></tr>';
@@ -955,8 +1002,8 @@ function renderTodos(docs) {
           <td>${d.tipo}</td><td>${d.responsable}</td><td style="color:var(--gris-500)">${d.version}</td>
           <td>${bEstado(d.estado)}</td>
           <td><div style="display:flex;gap:4px">
-            ${d.url?`<button class="btn btn-s btn-sm" onclick="window.open('${d.url}')">PDF</button>`:`<button class="btn btn-s btn-sm" disabled style="opacity:.4">PDF</button>`}
-            <button class="btn btn-r btn-sm" onclick="delDoc(${d.id})">✕</button>
+            ${d.url && !esLector()?`<button class="btn btn-s btn-sm" onclick="window.open('${d.url}')">PDF</button>`:(d.url && esLector()?`<span class="badge b-obs" style="font-size:10px">Sin descarga</span>`:`<button class="btn btn-s btn-sm" disabled style="opacity:.4">PDF</button>`)}
+            ${esAdmin()?`<button class="btn btn-r btn-sm" onclick="delDoc(${d.id})">✕</button>`:''}
           </div></td>
         </tr>`;}).join('')
     : '<tr><td colspan="8" style="text-align:center;padding:32px;color:var(--gris-500)">Sin resultados.</td></tr>';
