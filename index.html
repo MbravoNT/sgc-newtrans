@@ -783,38 +783,11 @@ const CARPETAS = [
 // ═══════════════════════════════════════
 // DATOS DEMO
 // ═══════════════════════════════════════
-let DOCS = [
-  { id:1,  codigo:'POL-001', nombre:'Política de calidad Newtrans',            carpeta_id:'01-gerencia',   tipo:'Política',      responsable:'Marco Bravo',  version:'v3.0', estado:'Vigente',     fecha_emision:'2025-01-15', desc:'Política general del SGC' },
-  { id:2,  codigo:'POL-002', nombre:'Política de temperatura cadena de frío',  carpeta_id:'12-temperatura',tipo:'Política',      responsable:'Marco Bravo',  version:'v1.1', estado:'Vigente',     fecha_emision:'2025-03-01', desc:'Lineamientos NT 147' },
-  { id:3,  codigo:'PRO-001', nombre:'Control de documentos y registros',       carpeta_id:'01-ctrl-doc',   tipo:'Procedimiento', responsable:'Marco Bravo',  version:'v2.1', estado:'En revisión', fecha_emision:'2024-08-10', desc:'Gestión documental SGC' },
-  { id:4,  codigo:'PRO-002', nombre:'Mapa de procesos Newtrans',               carpeta_id:'01-gerencia',   tipo:'Procedimiento', responsable:'Marco Bravo',  version:'v1.0', estado:'Vigente',     fecha_emision:'2025-01-20', desc:'Descripción de procesos SGC' },
-  { id:5,  codigo:'PRO-010', nombre:'Distribución farmacéutica BPD',           carpeta_id:'06-operaciones',tipo:'Procedimiento', responsable:'M. Guerrero',  version:'v3.0', estado:'Vigente',     fecha_emision:'2025-04-15', desc:'Basado en NT 147' },
-  { id:6,  codigo:'PRO-020', nombre:'Gestión de no conformidades',             carpeta_id:'04-hallazgos',  tipo:'Procedimiento', responsable:'Marco Bravo',  version:'v1.2', estado:'Vigente',     fecha_emision:'2025-01-10', desc:'NC y acciones correctivas' },
-  { id:7,  codigo:'PRO-030', nombre:'Gestión de reclamos de clientes',         carpeta_id:'03-reclamos',   tipo:'Procedimiento', responsable:'Marco Bravo',  version:'v1.0', estado:'Vigente',     fecha_emision:'2025-02-01', desc:'Tratamiento de reclamos' },
-  { id:8,  codigo:'INS-001', nombre:'Instructivo cadena de frío en vehículos', carpeta_id:'12-temperatura',tipo:'Instructivo',   responsable:'J. Miño',      version:'v1.0', estado:'Vigente',     fecha_emision:'2025-05-01', desc:'Control temp. distribución' },
-  { id:9,  codigo:'INS-002', nombre:'Instructivo carga y descarga farmacéutica',carpeta_id:'06-operaciones',tipo:'Instructivo',  responsable:'R. Castro',    version:'v1.0', estado:'Vigente',     fecha_emision:'2025-05-10', desc:'BPD en operaciones carga' },
-  { id:10, codigo:'FOR-001', nombre:'Formato registro temperatura diario',      carpeta_id:'12-temperatura',tipo:'Formato',      responsable:'J. Miño',      version:'v2.0', estado:'Vigente',     fecha_emision:'2025-03-15', desc:'Formulario control temperatura' },
-  { id:11, codigo:'FOR-010', nombre:'Formulario acción correctiva (8D)',        carpeta_id:'04-hallazgos',  tipo:'Formato',      responsable:'Marco Bravo',  version:'v1.0', estado:'Vigente',     fecha_emision:'2025-01-10', desc:'8 disciplinas' },
-  { id:12, codigo:'FOR-020', nombre:'Formato evaluación de proveedor',          carpeta_id:'11-proveedor',  tipo:'Formato',      responsable:'Marco Bravo',  version:'v1.1', estado:'Vigente',     fecha_emision:'2025-02-20', desc:'Evaluación anual proveedores' },
-  { id:13, codigo:'INF-NTL-CAL-V-VEH-73', nombre:'Informe calificación vehículo SHJT-73', carpeta_id:'cal-flota', tipo:'Informe', responsable:'Marco Bravo', version:'v1.0', estado:'Vigente', fecha_emision:'2025-06-01', desc:'Calificación vehículo refrigerado' },
-  { id:14, codigo:'REF-001', nombre:'NT 147 Buenas Prácticas de Distribución', carpeta_id:'06-operaciones',tipo:'Referencia externa',responsable:'Marco Bravo',version:'v1.0',estado:'Vigente',fecha_emision:'2024-01-01',desc:'Norma técnica ISP' },
-  { id:15, codigo:'CERT-ISO-2025',nombre:'Certificado ISO 9001:2015 Newtrans 2025',carpeta_id:'01-gerencia',tipo:'Certificado',responsable:'Marco Bravo',version:'v1.0',estado:'Vigente',fecha_emision:'2025-01-01',desc:'Certificación ISO vigente' },
-  { id:16, codigo:'CERT-NT147-2026',nombre:'Certificado NT 147 2026',          carpeta_id:'01-gerencia',   tipo:'Certificado',   responsable:'Marco Bravo',  version:'v1.0', estado:'Vigente',     fecha_emision:'2026-01-01', desc:'Certificación NT 147 vigente' },
-  { id:17, codigo:'CERT-NT208-2025',nombre:'Certificado NT 208 2025',          carpeta_id:'01-gerencia',   tipo:'Certificado',   responsable:'Marco Bravo',  version:'v1.0', estado:'Vigente',     fecha_emision:'2025-01-01', desc:'Certificación NT 208' },
-  { id:18, codigo:'PRO-040',nombre:'Plan de capacitación y competencias',      carpeta_id:'02-rrhh',        tipo:'Procedimiento', responsable:'Marco Bravo',  version:'v1.0', estado:'Vigente',     fecha_emision:'2025-02-01', desc:'Plan anual de capacitación' },
-  { id:19, codigo:'PRO-050',nombre:'Control de plagas y limpieza',             carpeta_id:'09-plagas',      tipo:'Procedimiento', responsable:'L. Quintana',  version:'v1.0', estado:'Vigente',     fecha_emision:'2025-03-10', desc:'Control sanitario bodegas' },
-  { id:20, codigo:'PRO-060',nombre:'Gestión de proveedores externos',          carpeta_id:'11-proveedor',   tipo:'Procedimiento', responsable:'Marco Bravo',  version:'v1.0', estado:'En revisión', fecha_emision:'2024-12-01', desc:'Evaluación y seguimiento' },
-];
+let DOCS = [];
 
-let NCS = [
-  { id:1, titulo:'Temperatura fuera de rango vehículo SHJT-73',tipo:'No conformidad',severidad:'Alta',clausula:'8',origen:'Control de temperatura',responsable:'J. Miño',fecha_limite:'2026-06-20',desc:'Sensor no registró durante traslado Stgo-Valparaíso',accion:'Revisión y reemplazo sensor, capacitación conductor',estado:'Abierta' },
-  { id:2, titulo:'Conductor sin capacitación NT147 al día',tipo:'No conformidad',severidad:'Media',clausula:'7',origen:'Auditoría interna',responsable:'M. Guerrero',fecha_limite:'2026-06-30',desc:'Conductor flota Antofagasta sin certificación vigente',accion:'Programar capacitación urgente',estado:'Abierta' },
-  { id:3, titulo:'Mantención preventiva fuera de plazo — Rancagua',tipo:'Observación',severidad:'Baja',clausula:'8',origen:'Operación diaria',responsable:'R. Castro',fecha_limite:'2026-07-15',desc:'3 vehículos superaron km de intervención',accion:'Agendar mantención, revisar NTFleet',estado:'Abierta' },
-];
+let NCS = [];
 
-let RECS = [
-  { id:1, cliente:'Laboratorio Chile', desc:'Entrega con retraso de 2 horas — quiebre de temperatura documentado', categoria:'Temperatura', fecha:'2026-06-05', responsable:'M. Guerrero', limite:'2026-06-19', accion:'Investigación en curso, contacto con cliente', estado:'Abierto' },
-];
+let RECS = [];
 
 let currentUser = null;
 
@@ -850,6 +823,10 @@ function go(p) {
     hallazgos: renderNC, reclamos: renderRec
   };
   if (fns[p]) fns[p]();
+  // Recargar datos frescos de Supabase al navegar a módulos clave
+  if (['inicio','carpetas','todos','hallazgos','reclamos'].includes(p) && sb) {
+    cargarDatos().then(() => { if (fns[p]) fns[p](); });
+  }
 }
 
 // ═══════════════════════════════════════
@@ -897,9 +874,27 @@ async function iniciarApp() {
   await cargarRol(currentUser?.id);
   aplicarRol();
   document.getElementById('wmsg').textContent =
-    `Bienvenido, ${nom}. ${DEMO ? '⚠️ Modo demo.' : 'ISO 9001:2015 · NT 147 · NT 208'} · Rol: ${MI_ROL}`;
+    `Bienvenido, ${nom}. ISO 9001:2015 · NT 147 · NT 208 · Rol: ${MI_ROL}`;
   poblarSelectCarpetas();
+  // Cargar datos desde Supabase
+  await cargarDatos();
   go('inicio');
+}
+
+async function cargarDatos() {
+  try {
+    const [docsRes, ncsRes, recsRes] = await Promise.all([
+      sb.from('documentos').select('*').order('created_at', { ascending: false }),
+      sb.from('hallazgos').select('*').order('created_at', { ascending: false }),
+      sb.from('reclamos').select('*').order('created_at', { ascending: false })
+    ]);
+    if (docsRes.data) DOCS = docsRes.data.map(d => ({ ...d, desc: d.descripcion }));
+    if (ncsRes.data)  NCS  = ncsRes.data;
+    if (recsRes.data) RECS = recsRes.data;
+  } catch(e) {
+    console.error('Error cargando datos:', e);
+    toast('Error al cargar datos desde la base de datos.');
+  }
 }
 
 function poblarSelectCarpetas() {
@@ -1020,8 +1015,9 @@ function filtrarTodos() {
 
 async function delDoc(id) {
   if (!confirm('¿Eliminar este documento del SGC?')) return;
-  if (!DEMO && sb) await sb.from('documentos').delete().eq('id',id);
-  DOCS = DOCS.filter(d=>d.id!==id);
+  const { error } = await sb.from('documentos').delete().eq('id', id);
+  if (error) { toast('Error al eliminar: ' + error.message); return; }
+  await cargarDatos();
   renderTodos(DOCS);
   toast('Documento eliminado.');
 }
@@ -1037,7 +1033,7 @@ function renderNC() {
         <div class="nc-bar nb-${n.severidad==='Alta'?'alta':n.severidad==='Media'?'media':'baja'}"></div>
         <div class="nc-body">
           <div class="nc-title">${n.titulo}</div>
-          <p style="font-size:12px;color:var(--gris-700);margin:4px 0">${n.desc||''}</p>
+          <p style="font-size:12px;color:var(--gris-700);margin:4px 0">${n.descripcion||n.desc||''}</p>
           ${n.accion?`<p style="font-size:11px;color:var(--azul-med);margin:3px 0">→ Acción: ${n.accion}</p>`:''}
           <div class="nc-meta">
             <span>${n.tipo}</span><span>Cl. ${n.clausula}</span>
@@ -1091,11 +1087,11 @@ function renderRec() {
         <div class="nc-bar nb-alta"></div>
         <div class="nc-body">
           <div class="nc-title">${r.cliente}</div>
-          <p style="font-size:12px;color:var(--gris-700);margin:4px 0">${r.desc}</p>
+          <p style="font-size:12px;color:var(--gris-700);margin:4px 0">${r.descripcion||r.desc||''}</p>
           ${r.accion?`<p style="font-size:11px;color:var(--azul-med);margin:3px 0">→ ${r.accion}</p>`:''}
           <div class="nc-meta">
             <span>Categoría: ${r.categoria}</span><span>Resp: ${r.responsable}</span>
-            <span>Vence: ${fFecha(r.limite)}</span>${bEstado(r.estado)}
+            <span>Vence: ${fFecha(r.fecha_limite||r.limite)}</span>${bEstado(r.estado)}
           </div>
         </div>
         ${r.estado==='Abierto'?`<button class="btn btn-s btn-sm" onclick="cerrarRecid(${r.id})">Cerrar</button>`:''}
@@ -1111,18 +1107,25 @@ async function guardarRec() {
   const d = document.getElementById('rec-desc').value.trim();
   if (!c||!d) { toast('Completa cliente y descripción.'); return; }
   const r = {
-    id:Date.now(), cliente:c, desc:d, categoria:document.getElementById('rec-cat').value,
-    fecha:document.getElementById('rec-fecha').value, responsable:document.getElementById('rec-resp').value,
-    limite:document.getElementById('rec-limite').value, accion:document.getElementById('rec-accion').value, estado:'Abierto'
+    cliente:c, descripcion:d, categoria:document.getElementById('rec-cat').value,
+    fecha_reclamo:document.getElementById('rec-fecha').value, responsable:document.getElementById('rec-resp').value,
+    fecha_limite:document.getElementById('rec-limite').value, accion:document.getElementById('rec-accion').value, estado:'Abierto'
   };
-  if (!DEMO && sb) { const {data} = await sb.from('reclamos').insert([r]).select(); if(data) r.id=data[0].id; }
-  RECS.unshift(r); cerrarRec(); renderRec(); toast(`Reclamo de "${c}" registrado.`);
+  const { error } = await sb.from('reclamos').insert([r]);
+  if (error) { toast('Error al guardar reclamo: ' + error.message); return; }
+  await cargarDatos();
+  cerrarRec();
+  renderRec();
+  toast(`Reclamo de "${c}" registrado.`);
 }
 
-function cerrarRecid(id) {
-  if(!confirm('¿Cerrar este reclamo?'))return;
-  const r=RECS.find(x=>x.id===id); if(r)r.estado='Cerrado';
-  renderRec(); toast('Reclamo cerrado.');
+async function cerrarRecid(id) {
+  if (!confirm('¿Cerrar este reclamo?')) return;
+  const { error } = await sb.from('reclamos').update({estado:'Cerrado'}).eq('id', id);
+  if (error) { toast('Error al cerrar reclamo: ' + error.message); return; }
+  await cargarDatos();
+  renderRec();
+  toast('Reclamo cerrado correctamente.');
 }
 
 // ═══════════════════════════════════════
@@ -1151,10 +1154,11 @@ async function doSubir() {
     url = u?.publicUrl;
   }
 
-  const nuevo = { id:Date.now(), codigo:cod, nombre:nom, carpeta_id:carp, tipo, responsable:resp, version:ver, estado:est, fecha_emision:fech, desc, url };
-  if (!DEMO && sb) { const {data} = await sb.from('documentos').insert([nuevo]).select(); if(data) nuevo.id=data[0].id; }
-  DOCS.unshift(nuevo);
+  const nuevo = { codigo:cod, nombre:nom, carpeta_id:carp, tipo, responsable:resp, version:ver, estado:est, fecha_emision:fech, descripcion:desc, url_archivo:url };
+  const { data, error } = await sb.from('documentos').insert([nuevo]).select();
+  if (error) { toast('Error al guardar: ' + error.message); return; }
   toast(`"${cod} — ${nom}" subido correctamente.`);
+  await cargarDatos();
   go('carpetas');
 }
 
