@@ -646,6 +646,55 @@ tbody tr:hover td{background:var(--gris-50)}
   </div>
 </div>
 
+<!-- MODAL EDITAR DOCUMENTO -->
+<div class="modal-overlay" id="modal-edit-doc">
+  <div class="modal">
+    <div class="mh"><h2>Editar documento</h2><button class="mclose" onclick="cerrarEditDoc()"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+    <div class="mb">
+      <input type="hidden" id="edit-doc-id" />
+      <div class="fr">
+        <div class="field"><label>Código</label><input type="text" id="edit-doc-codigo" /></div>
+        <div class="field"><label>Versión</label><input type="text" id="edit-doc-version" /></div>
+      </div>
+      <div class="field"><label>Nombre del documento</label><input type="text" id="edit-doc-nombre" /></div>
+      <div class="fr">
+        <div class="field"><label>Tipo</label>
+          <select id="edit-doc-tipo">
+            <option>Política</option><option>Procedimiento</option><option>Instructivo</option>
+            <option>Formato</option><option>Registro</option><option>Informe</option>
+            <option>Certificado</option><option>Acuerdo</option><option>Referencia externa</option><option>Otro</option>
+          </select>
+        </div>
+        <div class="field"><label>Estado</label>
+          <select id="edit-doc-estado"><option>Vigente</option><option>En revisión</option><option>Obsoleto</option></select>
+        </div>
+      </div>
+      <div class="fr">
+        <div class="field"><label>Responsable</label><input type="text" id="edit-doc-responsable" /></div>
+        <div class="field"><label>Fecha de emisión</label><input type="date" id="edit-doc-fecha" /></div>
+      </div>
+      <div class="field"><label>Descripción</label><textarea id="edit-doc-desc" style="min-height:55px"></textarea></div>
+      <div class="field">
+        <label>Adjuntar / reemplazar PDF</label>
+        <div class="upload-zone" onclick="document.getElementById('edit-doc-file').click()">
+          <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          <p><strong>Clic para seleccionar PDF</strong> (opcional — solo si quieres adjuntar o reemplazar)</p>
+          <p id="edit-fname" style="margin-top:6px;font-size:12px;color:var(--azul-med)"></p>
+        </div>
+        <input type="file" id="edit-doc-file" accept=".pdf,.docx,.xlsx" style="display:none" onchange="document.getElementById('edit-fname').textContent='📄 '+this.files[0].name" />
+      </div>
+      <div id="edit-doc-url-actual" style="font-size:12px;color:var(--gris-500);margin-top:4px"></div>
+    </div>
+    <div class="mf">
+      <button class="btn btn-s" onclick="cerrarEditDoc()">Cancelar</button>
+      <button class="btn btn-p" onclick="guardarEditDoc()">
+        <svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+        Guardar cambios
+      </button>
+    </div>
+  </div>
+</div>
+
 <div id="toast"></div>
 
 <script>
@@ -906,6 +955,7 @@ function verCarpeta(cid) {
         <td>${bEstado(d.estado)}</td>
         <td><div style="display:flex;gap:4px">
           ${d.url_archivo && !esLector()?`<button class="btn btn-s btn-sm" onclick="window.open('${d.url_archivo}')">PDF</button>`:(d.url_archivo && esLector()?`<span class="badge b-obs" style="font-size:10px">Sin descarga</span>`:`<button class="btn btn-s btn-sm" disabled style="opacity:.4">PDF</button>`)}
+          ${esGestor()?`<button class="btn btn-s btn-sm" onclick="abrirEditDoc(${d.id})" title="Editar"><svg viewBox="0 0 24 24" style="width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>`:''}
           ${esAdmin()?`<button class="btn btn-r btn-sm" onclick="delDoc(${d.id})">✕</button>`:''}
         </div></td>
       </tr>`).join('')
@@ -925,6 +975,7 @@ function renderTodos(docs) {
           <td>${bEstado(d.estado)}</td>
           <td><div style="display:flex;gap:4px">
             ${d.url_archivo && !esLector()?`<button class="btn btn-s btn-sm" onclick="window.open('${d.url_archivo}')">PDF</button>`:(d.url_archivo && esLector()?`<span class="badge b-obs" style="font-size:10px">Sin descarga</span>`:`<button class="btn btn-s btn-sm" disabled style="opacity:.4">PDF</button>`)}
+            ${esGestor()?`<button class="btn btn-s btn-sm" onclick="abrirEditDoc(${d.id})" title="Editar"><svg viewBox="0 0 24 24" style="width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>`:''}
             ${esAdmin()?`<button class="btn btn-r btn-sm" onclick="delDoc(${d.id})">✕</button>`:''}
           </div></td>
         </tr>`;}).join('')
@@ -1192,6 +1243,72 @@ function irDoc() {
 document.addEventListener('click', e => {
   if (!e.target.closest('.topbar-search-wrap')) document.getElementById('search-results').style.display='none';
 });
+
+// ═══════════════════════════════════════
+// EDITAR DOCUMENTO
+// ═══════════════════════════════════════
+function abrirEditDoc(id) {
+  const d = DOCS.find(x => x.id === id);
+  if (!d) return;
+  document.getElementById('edit-doc-id').value = d.id;
+  document.getElementById('edit-doc-codigo').value = d.codigo || '';
+  document.getElementById('edit-doc-version').value = d.version || '';
+  document.getElementById('edit-doc-nombre').value = d.nombre || '';
+  document.getElementById('edit-doc-tipo').value = d.tipo || 'Procedimiento';
+  document.getElementById('edit-doc-estado').value = d.estado || 'Vigente';
+  document.getElementById('edit-doc-responsable').value = d.responsable || '';
+  document.getElementById('edit-doc-fecha').value = d.fecha_emision || '';
+  document.getElementById('edit-doc-desc').value = d.descripcion || '';
+  document.getElementById('edit-fname').textContent = '';
+  document.getElementById('edit-doc-file').value = '';
+  const urlEl = document.getElementById('edit-doc-url-actual');
+  urlEl.innerHTML = d.url_archivo
+    ? `PDF actual: <a href="${d.url_archivo}" target="_blank" style="color:var(--azul-med)">Ver archivo →</a>`
+    : 'Sin PDF adjunto actualmente.';
+  document.getElementById('modal-edit-doc').classList.add('open');
+}
+
+function cerrarEditDoc() {
+  document.getElementById('modal-edit-doc').classList.remove('open');
+}
+
+async function guardarEditDoc() {
+  const id    = document.getElementById('edit-doc-id').value;
+  const codigo = document.getElementById('edit-doc-codigo').value.trim();
+  const nombre = document.getElementById('edit-doc-nombre').value.trim();
+  const version = document.getElementById('edit-doc-version').value.trim();
+  const tipo   = document.getElementById('edit-doc-tipo').value;
+  const estado = document.getElementById('edit-doc-estado').value;
+  const responsable = document.getElementById('edit-doc-responsable').value.trim();
+  const fecha  = document.getElementById('edit-doc-fecha').value;
+  const desc   = document.getElementById('edit-doc-desc').value.trim();
+  const file   = document.getElementById('edit-doc-file').files[0];
+
+  if (!codigo || !nombre || !responsable || !fecha) { toast('Completa los campos obligatorios.'); return; }
+
+  // Obtener documento actual para preservar carpeta y url si no hay nuevo archivo
+  const docActual = DOCS.find(x => x.id == id);
+
+  let url_archivo = docActual?.url_archivo || null;
+
+  // Subir nuevo PDF si se seleccionó uno
+  if (file && sb) {
+    const path = `${docActual.carpeta_id}/${codigo}_${version}_${Date.now()}.pdf`;
+    const { error: upErr } = await sb.storage.from('sgc - docs').upload(path, file, { upsert: true });
+    if (upErr) { toast('Error al subir PDF: ' + upErr.message); return; }
+    const { data: urlData } = sb.storage.from('sgc - docs').getPublicUrl(path);
+    url_archivo = urlData?.publicUrl || null;
+  }
+
+  const updates = { codigo, nombre, version, tipo, estado, responsable, fecha_emision: fecha, descripcion: desc, url_archivo };
+  const { error } = await sb.from('documentos').update(updates).eq('id', id);
+  if (error) { toast('Error al guardar: ' + error.message); return; }
+
+  await cargarDatos();
+  cerrarEditDoc();
+  renderTodos(DOCS);
+  toast(`"${codigo} — ${nombre}" actualizado correctamente.`);
+}
 
 document.getElementById('d-fecha').value = new Date().toISOString().split('T')[0];
 </script>
