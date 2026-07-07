@@ -1150,8 +1150,8 @@ async function doSubir() {
   let url = null;
   if (file && !DEMO && sb) {
     const path = `${carp}/${cod}_${ver}_${Date.now()}.pdf`;
-    await sb.storage.from('sgc-docs').upload(path, file, {upsert:true});
-    const {data:u} = sb.storage.from('sgc-docs').getPublicUrl(path);
+    await sb.storage.from('sgc - docs').upload(path, file, {upsert:true});
+    const {data:u} = sb.storage.from('sgc - docs').getPublicUrl(path);
     url = u?.publicUrl;
   }
 
