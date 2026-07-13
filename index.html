@@ -291,21 +291,36 @@ tbody tr:hover td{background:var(--gris-50)}
 
     <div class="page active" id="page-inicio">
       <div class="ph"><div class="ph-text"><h1>Portal SGC — Newtrans Logistic</h1><p id="wmsg">Sistema de Gestión de Calidad certificado ISO 9001:2015 · NT 147 · NT 208</p></div></div>
-      <div class="cert-banner">
+      <div class="cert-banner" id="cert-banner">
         <div class="cert-card">
           <div class="cert-card-ico" style="background:#EBF2FB;color:#1A3A5C">ISO</div>
-          <div><div class="cert-card-name">ISO 9001:2015</div><div class="cert-card-det">Certificado vigente · Sistema de Gestión de Calidad</div></div>
-          <span class="badge b-ok" style="margin-left:auto">Vigente</span>
+          <div style="flex:1"><div class="cert-card-name">ISO 9001:2015</div><div class="cert-card-det">Certificado vigente · Sistema de Gestión de Calidad</div></div>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0">
+            <span class="badge b-ok">Vigente</span>
+            <button class="btn btn-s btn-sm" id="btn-cert-iso" onclick="verCertificado('CERT-ISO-2025')" style="display:none">
+              <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Ver PDF
+            </button>
+          </div>
         </div>
         <div class="cert-card">
           <div class="cert-card-ico" style="background:#E8F5EE;color:#1E6B45">NT</div>
-          <div><div class="cert-card-name">NT 147 — Buenas Prácticas de Distribución</div><div class="cert-card-det">Distribución farmacéutica · Certificado 2026</div></div>
-          <span class="badge b-ok" style="margin-left:auto">Vigente</span>
+          <div style="flex:1"><div class="cert-card-name">NT 147 — Buenas Prácticas de Distribución</div><div class="cert-card-det">Distribución farmacéutica · Certificado 2026</div></div>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0">
+            <span class="badge b-ok">Vigente</span>
+            <button class="btn btn-s btn-sm" id="btn-cert-nt147" onclick="verCertificado('CERT-NT147-2026')" style="display:none">
+              <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Ver PDF
+            </button>
+          </div>
         </div>
         <div class="cert-card">
           <div class="cert-card-ico" style="background:#FEF3DC;color:#7A4A00">NT</div>
-          <div><div class="cert-card-name">NT 208</div><div class="cert-card-det">Certificado de cumplimiento · 2025</div></div>
-          <span class="badge b-ok" style="margin-left:auto">Vigente</span>
+          <div style="flex:1"><div class="cert-card-name">NT 208</div><div class="cert-card-det">Certificado de cumplimiento · 2025</div></div>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0">
+            <span class="badge b-ok">Vigente</span>
+            <button class="btn btn-s btn-sm" id="btn-cert-nt208" onclick="verCertificado('CERT-NT208-2025')" style="display:none">
+              <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Ver PDF
+            </button>
+          </div>
         </div>
       </div>
       <div class="g4" style="margin-bottom:18px">
@@ -1008,6 +1023,28 @@ function poblarSelectCarpetas() {
   document.getElementById('f-carpeta').innerHTML = '<option value="">Todas las carpetas</option>' + opts;
 }
 
+function verCertificado(codigo) {
+  const doc = DOCS.find(d => d.codigo === codigo);
+  if (doc && doc.url_archivo) {
+    window.open(doc.url_archivo, '_blank');
+  } else {
+    toast('PDF no disponible para este certificado.');
+  }
+}
+
+function actualizarBotonesCertificados() {
+  const certs = [
+    { codigo: 'CERT-ISO-2025',  btnId: 'btn-cert-iso'   },
+    { codigo: 'CERT-NT147-2026', btnId: 'btn-cert-nt147' },
+    { codigo: 'CERT-NT208-2025', btnId: 'btn-cert-nt208' },
+  ];
+  certs.forEach(c => {
+    const doc = DOCS.find(d => d.codigo === c.codigo);
+    const btn = document.getElementById(c.btnId);
+    if (btn) btn.style.display = (doc && doc.url_archivo) ? 'inline-flex' : 'none';
+  });
+}
+
 function renderInicio() {
   document.getElementById('k-docs').textContent = DOCS.filter(d=>d.estado==='Vigente').length;
   document.getElementById('k-rev').textContent  = DOCS.filter(d=>d.estado==='En revisión').length;
@@ -1053,6 +1090,7 @@ function renderInicio() {
   document.getElementById('aud-home').innerHTML = AUDS.length
     ? AUDS.slice(0,5).map(a=>`<div class="arow"><div><div class="an">${a.nombre}</div><div class="as">${a.clausulas?'Cl. '+a.clausulas+' · ':''}${a.auditor?'Auditor: '+a.auditor+' · ':''}${a.tipo}</div></div>${bAudEstado(a.estado)}</div>`).join('')
     : '<div class="empty" style="padding:20px"><p>Sin auditorías programadas</p></div>';
+  actualizarBotonesCertificados();
 }
 
 function renderCarpetas() {
