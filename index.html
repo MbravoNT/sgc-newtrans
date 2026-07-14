@@ -161,6 +161,16 @@ tbody tr:hover td{background:var(--gris-50)}
 .sr-item:last-child{border-bottom:none}
 .sr-name{font-size:13px;font-weight:600;color:var(--gris-900)}
 .sr-meta{font-size:11px;color:var(--gris-500)}
+/* VISOR PDF */
+.pdf-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:400;align-items:center;justify-content:center;flex-direction:column}
+.pdf-overlay.open{display:flex}
+.pdf-header{width:90vw;max-width:1000px;display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:var(--azul);border-radius:var(--radio-md) var(--radio-md) 0 0}
+.pdf-header-title{color:#fff;font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:70%}
+.pdf-header-btns{display:flex;gap:8px;align-items:center;flex-shrink:0}
+.pdf-close{background:rgba(255,255,255,.15);border:none;color:#fff;padding:6px 12px;border-radius:var(--radio-sm);cursor:pointer;font-size:13px;font-weight:600}
+.pdf-close:hover{background:rgba(255,255,255,.25)}
+.pdf-frame{width:90vw;max-width:1000px;height:80vh;border:none;background:#fff;border-radius:0 0 var(--radio-md) var(--radio-md)}
+
 #toast{position:fixed;bottom:24px;right:24px;z-index:999;background:var(--gris-900);color:#fff;padding:11px 18px;border-radius:var(--radio-md);font-size:13px;font-weight:500;opacity:0;transform:translateY(8px);transition:all .25s;pointer-events:none}
 #toast.show{opacity:1;transform:translateY(0)}
 .kbar-track{height:5px;background:var(--gris-100);border-radius:3px;overflow:hidden;margin-top:8px}
@@ -597,6 +607,17 @@ tbody tr:hover td{background:var(--gris-50)}
   </div>
 </div>
 
+<!-- VISOR PDF -->
+<div class="pdf-overlay" id="pdf-visor">
+  <div class="pdf-header">
+    <span class="pdf-header-title" id="pdf-titulo">Documento</span>
+    <div class="pdf-header-btns">
+      <button class="pdf-close" onclick="cerrarPDF()">✕ Cerrar</button>
+    </div>
+  </div>
+  <iframe class="pdf-frame" id="pdf-frame" src="" allowfullscreen></iframe>
+</div>
+
 <div class="modal-overlay" id="modal-nc">
   <div class="modal">
     <div class="mh"><h2 id="modal-nc-title">Registrar hallazgo / NC</h2><button class="mclose" onclick="cerrarNC()"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
@@ -1026,11 +1047,28 @@ function poblarSelectCarpetas() {
 function verCertificado(codigo) {
   const doc = DOCS.find(d => d.codigo === codigo);
   if (doc && doc.url_archivo) {
-    window.open(doc.url_archivo, '_blank');
+    abrirPDF(doc.url_archivo, doc.nombre);
   } else {
     toast('PDF no disponible para este certificado.');
   }
 }
+
+function abrirPDF(url, titulo) {
+  if (!url) { toast('Este documento no tiene PDF adjunto.'); return; }
+  document.getElementById('pdf-titulo').textContent = titulo || 'Documento';
+  document.getElementById('pdf-frame').src = url;
+  document.getElementById('pdf-visor').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function cerrarPDF() {
+  document.getElementById('pdf-visor').classList.remove('open');
+  document.getElementById('pdf-frame').src = '';
+  document.body.style.overflow = '';
+}
+
+// Cerrar visor con tecla ESC
+document.addEventListener('keydown', e => { if (e.key === 'Escape') cerrarPDF(); });
 
 function actualizarBotonesCertificados() {
   const certs = [
@@ -1125,7 +1163,7 @@ function verCarpeta(cid) {
         <td>${d.responsable}</td>
         <td>${bEstado(d.estado)}</td>
         <td><div style="display:flex;gap:4px">
-          ${d.url_archivo && !esLector()?`<button class="btn btn-s btn-sm" onclick="window.open('${d.url_archivo}')">PDF</button>`:(d.url_archivo && esLector()?`<span class="badge b-obs" style="font-size:10px">Sin descarga</span>`:`<button class="btn btn-s btn-sm" disabled style="opacity:.4">PDF</button>`)}
+          ${d.url_archivo && !esLector()?`<button class="btn btn-s btn-sm" onclick="abrirPDF('${d.url_archivo}','${d.codigo} — ${d.nombre}')"><svg viewBox='0 0 24 24' style='width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2'><path d='M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z'/><polyline points='14 2 14 8 20 8'/></svg>Ver PDF</button>`:(d.url_archivo && esLector()?`<span class="badge b-obs" style="font-size:10px">Sin descarga</span>`:`<button class="btn btn-s btn-sm" disabled style="opacity:.4">PDF</button>`)}
           ${esGestor()?`<button class="btn btn-s btn-sm" onclick="abrirEditDoc(${d.id})" title="Editar"><svg viewBox="0 0 24 24" style="width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>`:''}
           ${esAdmin()?`<button class="btn btn-r btn-sm" onclick="delDoc(${d.id})">✕</button>`:''}
         </div></td>
@@ -1145,7 +1183,7 @@ function renderTodos(docs) {
           <td>${d.tipo}</td><td>${d.responsable}</td><td style="color:var(--gris-500)">${d.version}</td>
           <td>${bEstado(d.estado)}</td>
           <td><div style="display:flex;gap:4px">
-            ${d.url_archivo && !esLector()?`<button class="btn btn-s btn-sm" onclick="window.open('${d.url_archivo}')">PDF</button>`:(d.url_archivo && esLector()?`<span class="badge b-obs" style="font-size:10px">Sin descarga</span>`:`<button class="btn btn-s btn-sm" disabled style="opacity:.4">PDF</button>`)}
+            ${d.url_archivo && !esLector()?`<button class="btn btn-s btn-sm" onclick="abrirPDF('${d.url_archivo}','${d.codigo} — ${d.nombre}')"><svg viewBox='0 0 24 24' style='width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2'><path d='M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z'/><polyline points='14 2 14 8 20 8'/></svg>Ver PDF</button>`:(d.url_archivo && esLector()?`<span class="badge b-obs" style="font-size:10px">Sin descarga</span>`:`<button class="btn btn-s btn-sm" disabled style="opacity:.4">PDF</button>`)}
             ${esGestor()?`<button class="btn btn-s btn-sm" onclick="abrirEditDoc(${d.id})" title="Editar"><svg viewBox="0 0 24 24" style="width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>`:''}
             ${esAdmin()?`<button class="btn btn-r btn-sm" onclick="delDoc(${d.id})">✕</button>`:''}
           </div></td>
