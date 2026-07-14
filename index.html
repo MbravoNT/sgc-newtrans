@@ -277,6 +277,10 @@ tbody tr:hover td{background:var(--gris-50)}
     </div>
     <div class="nav-divider"></div>
     <div class="nav-label">Módulos operacionales</div>
+    <div class="nav-item" data-p="capacitaciones" onclick="go('capacitaciones')">
+      <svg viewBox="0 0 24 24"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+      Capacitaciones <span class="nav-pill np-azul" id="cap-badge">0</span>
+    </div>
     <div class="nav-item" data-p="temp" onclick="go('temp')">
       <svg viewBox="0 0 24 24"><path d="M14 14.76V3.5a2.5 2.5 0 00-5 0v11.26a4.5 4.5 0 105 0z"/></svg>Control de temperatura
       <span class="nav-pill np-rojo" id="temp-badge" style="display:none">!</span>
@@ -462,6 +466,80 @@ tbody tr:hover td{background:var(--gris-50)}
       </div>
     </div>
 
+    <div class="page" id="page-capacitaciones">
+      <div class="ph">
+        <div class="ph-text"><h1>Capacitaciones</h1><p>Registro de capacitaciones del personal — Cl. 7.2 ISO 9001:2015.</p></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <a href="https://capacitacion.newtrans.cl" target="_blank" class="btn btn-s">
+            <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            Ir al Aula Virtual
+          </a>
+          <button class="btn btn-p" onclick="abrirRegCap()">
+            <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Registrar capacitación
+          </button>
+        </div>
+      </div>
+
+      <!-- KPI Capacitaciones -->
+      <div class="g3" style="margin-bottom:16px">
+        <div class="kpi" style="padding:16px">
+          <div class="kpi-lbl" style="margin-bottom:6px">Cursos disponibles</div>
+          <div class="kpi-val" style="color:var(--azul)" id="k-cap-cursos">—</div>
+          <div class="kpi-sub" style="color:var(--gris-500)">Activos en el SGC</div>
+        </div>
+        <div class="kpi" style="padding:16px">
+          <div class="kpi-lbl" style="margin-bottom:6px">Registros totales</div>
+          <div class="kpi-val" style="color:var(--verde)" id="k-cap-total">—</div>
+          <div class="kpi-sub" style="color:var(--gris-500)">Completados</div>
+        </div>
+        <div class="kpi" style="padding:16px">
+          <div class="kpi-lbl" style="margin-bottom:6px">Último registro</div>
+          <div class="kpi-val" style="color:var(--azul);font-size:16px;padding-top:4px" id="k-cap-ultimo">—</div>
+          <div class="kpi-sub" style="color:var(--gris-500)" id="k-cap-ultimo-nombre">—</div>
+        </div>
+      </div>
+
+      <!-- Filtros -->
+      <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
+        <select id="cap-filtro-curso" onchange="renderCapacitaciones()" style="padding:7px 10px;border:1px solid var(--gris-300);border-radius:var(--radio-sm);font-size:13px;flex:1;min-width:200px">
+          <option value="">Todos los cursos</option>
+        </select>
+        <select id="cap-filtro-ciudad" onchange="renderCapacitaciones()" style="padding:7px 10px;border:1px solid var(--gris-300);border-radius:var(--radio-sm);font-size:13px">
+          <option value="">Todas las ciudades</option>
+          <option>Santiago</option><option>Antofagasta</option><option>Valparaíso</option>
+          <option>Concepción</option><option>La Serena</option><option>Temuco</option>
+          <option>Puerto Montt</option><option>Iquique</option><option>Arica</option>
+          <option>Copiapó</option><option>Rancagua</option><option>Talca</option>
+          <option>Chillán</option><option>Los Ángeles</option><option>Osorno</option>
+          <option>Coyhaique</option><option>Punta Arenas</option>
+        </select>
+        <input type="text" id="cap-filtro-nombre" placeholder="Buscar participante…" oninput="renderCapacitaciones()" style="padding:7px 10px;border:1px solid var(--gris-300);border-radius:var(--radio-sm);font-size:13px;min-width:200px" />
+      </div>
+
+      <!-- Tabla de cursos disponibles -->
+      <div class="card" style="margin-bottom:14px">
+        <div class="card-title">
+          <svg viewBox="0 0 24 24"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+          Cursos disponibles
+          ${esAdmin()?'<button class="btn btn-s btn-sm" style="margin-left:auto" onclick="abrirCurso()">+ Agregar curso</button>':''}
+        </div>
+        <div id="cursos-lista"></div>
+      </div>
+
+      <!-- Registros -->
+      <div class="card">
+        <div class="card-title">
+          <svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+          Registros de participantes
+        </div>
+        <div class="tw"><table>
+          <thead><tr><th>Participante</th><th>Curso</th><th>Ciudad</th><th>Cargo</th><th>Fecha</th><th>Observaciones</th><th></th></tr></thead>
+          <tbody id="cap-tbody"></tbody>
+        </table></div>
+      </div>
+    </div>
+
     <div class="page" id="page-indicadores">
       <div class="ph">
         <div class="ph-text"><h1>Indicadores de calidad</h1><p id="kpi-periodo-titulo">KPI del SGC</p></div>
@@ -604,6 +682,76 @@ tbody tr:hover td{background:var(--gris-50)}
       </div>
     </div>
 
+  </div>
+</div>
+
+<!-- MODAL REGISTRAR CAPACITACIÓN -->
+<div class="modal-overlay" id="modal-reg-cap">
+  <div class="modal">
+    <div class="mh"><h2 id="modal-reg-cap-title">Registrar capacitación completada</h2><button class="mclose" onclick="cerrarRegCap()"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+    <div class="mb">
+      <input type="hidden" id="reg-cap-id" />
+      <div class="field"><label>Curso *</label>
+        <select id="reg-cap-curso">
+          <option value="">Seleccionar curso…</option>
+        </select>
+      </div>
+      <div class="field"><label>Nombre del participante *</label>
+        <input type="text" id="reg-cap-nombre" placeholder="Nombre completo" />
+      </div>
+      <div class="fr">
+        <div class="field"><label>Ciudad</label>
+          <select id="reg-cap-ciudad">
+            <option value="">Seleccionar…</option>
+            <option>Santiago</option><option>Antofagasta</option><option>Valparaíso</option>
+            <option>Concepción</option><option>La Serena</option><option>Temuco</option>
+            <option>Puerto Montt</option><option>Iquique</option><option>Arica</option>
+            <option>Copiapó</option><option>Rancagua</option><option>Talca</option>
+            <option>Chillán</option><option>Los Ángeles</option><option>Osorno</option>
+            <option>Coyhaique</option><option>Punta Arenas</option>
+          </select>
+        </div>
+        <div class="field"><label>Cargo</label>
+          <input type="text" id="reg-cap-cargo" placeholder="Ej: Conductor, Operador" />
+        </div>
+      </div>
+      <div class="fr">
+        <div class="field"><label>Fecha de completado *</label>
+          <input type="date" id="reg-cap-fecha" />
+        </div>
+        <div class="field"><label>Email (opcional)</label>
+          <input type="email" id="reg-cap-email" placeholder="correo@newtrans.cl" />
+        </div>
+      </div>
+      <div class="field"><label>Observaciones</label>
+        <textarea id="reg-cap-obs" placeholder="Notas adicionales…" style="min-height:55px"></textarea>
+      </div>
+    </div>
+    <div class="mf"><button class="btn btn-s" onclick="cerrarRegCap()">Cancelar</button><button class="btn btn-p" onclick="guardarRegCap()">Registrar</button></div>
+  </div>
+</div>
+
+<!-- MODAL NUEVO CURSO -->
+<div class="modal-overlay" id="modal-curso">
+  <div class="modal">
+    <div class="mh"><h2 id="modal-curso-title">Agregar curso</h2><button class="mclose" onclick="cerrarCurso()"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+    <div class="mb">
+      <input type="hidden" id="curso-id" />
+      <div class="field"><label>Nombre del curso *</label><input type="text" id="curso-nombre" placeholder="Ej: NT 147 — Buenas Prácticas" /></div>
+      <div class="field"><label>Descripción</label><textarea id="curso-desc" placeholder="Descripción y objetivos del curso…" style="min-height:55px"></textarea></div>
+      <div class="fr">
+        <div class="field"><label>Tipo</label>
+          <select id="curso-tipo"><option>Obligatoria</option><option>Complementaria</option></select>
+        </div>
+        <div class="field"><label>Duración (horas)</label>
+          <input type="number" id="curso-horas" step="0.5" placeholder="Ej: 8" />
+        </div>
+      </div>
+      <div class="field"><label>Vigencia (meses)</label>
+        <input type="number" id="curso-vigencia" placeholder="Ej: 12" value="12" />
+      </div>
+    </div>
+    <div class="mf"><button class="btn btn-s" onclick="cerrarCurso()">Cancelar</button><button class="btn btn-p" onclick="guardarCurso()">Guardar</button></div>
   </div>
 </div>
 
@@ -952,10 +1100,11 @@ function go(p) {
     inicio: renderInicio, carpetas: renderCarpetas, todos: () => renderTodos(DOCS),
     hallazgos: renderNC, reclamos: renderRec, auditoria: renderAud,
     revision: renderRevision, indicadores: renderKPI,
-    temp: renderTemp, proveedores: renderProveedores
+    temp: renderTemp, proveedores: renderProveedores,
+    capacitaciones: renderCapacitaciones
   };
   if (fns[p]) fns[p]();
-  if (['inicio','carpetas','todos','hallazgos','reclamos','auditoria','revision','indicadores','temp','proveedores'].includes(p) && sb) {
+  if (['inicio','carpetas','todos','hallazgos','reclamos','auditoria','revision','indicadores','temp','proveedores','capacitaciones'].includes(p) && sb) {
     cargarDatos().then(() => { if (fns[p]) fns[p](); });
   }
 }
@@ -1004,6 +1153,7 @@ async function iniciarApp() {
     `Bienvenido, ${nom}. ISO 9001:2015 · NT 147 · NT 208 · Rol: ${MI_ROL}`;
   poblarSelectCarpetas();
   await cargarDatos();
+  iniciarMonitorInactividad();
   go('inicio');
 }
 
@@ -1011,10 +1161,12 @@ let REVS = [];
 let KPIS = [];
 let TEMPS = [];
 let PROVS = [];
+let CURSOS = [];
+let CAP_REGS = [];
 
 async function cargarDatos() {
   try {
-    const [docsRes, ncsRes, recsRes, audsRes, revRes, kpiRes, tempRes, provRes] = await Promise.all([
+    const [docsRes, ncsRes, recsRes, audsRes, revRes, kpiRes, tempRes, provRes, cursosRes, capRes] = await Promise.all([
       sb.from('documentos').select('*').order('created_at', { ascending: false }),
       sb.from('hallazgos').select('*').order('created_at', { ascending: false }),
       sb.from('reclamos').select('*').order('created_at', { ascending: false }),
@@ -1022,7 +1174,9 @@ async function cargarDatos() {
       sb.from('revision_direccion').select('*').order('id', { ascending: true }),
       sb.from('kpi_indicadores').select('*').order('ciudad').order('nombre'),
       sb.from('temp_alertas').select('*').order('fecha', { ascending: false }),
-      sb.from('proveedores').select('*').order('nombre')
+      sb.from('proveedores').select('*').order('nombre'),
+      sb.from('capacitaciones').select('*').order('nombre'),
+      sb.from('capacitacion_registros').select('*').order('fecha_completado', { ascending: false })
     ]);
     if (docsRes.data) DOCS = docsRes.data.map(d => ({ ...d, desc: d.descripcion }));
     if (ncsRes.data)  NCS  = ncsRes.data;
@@ -1032,6 +1186,8 @@ async function cargarDatos() {
     if (kpiRes.data)  KPIS = kpiRes.data;
     if (tempRes.data) TEMPS = tempRes.data;
     if (provRes.data) PROVS = provRes.data;
+    if (cursosRes.data) CURSOS = cursosRes.data;
+    if (capRes.data)    CAP_REGS = capRes.data;
   } catch(e) {
     console.error('Error cargando datos:', e);
     toast('Error al cargar datos desde la base de datos.');
@@ -1889,6 +2045,215 @@ async function guardarEditDoc() {
   cerrarEditDoc();
   renderTodos(DOCS);
   toast(`"${codigo} — ${nombre}" actualizado correctamente.`);
+}
+
+// ═══════════════════════════════════════
+// CAPACITACIONES
+// ═══════════════════════════════════════
+function renderCapacitaciones() {
+  // KPI
+  const elCursos = document.getElementById('k-cap-cursos');
+  const elTotal  = document.getElementById('k-cap-total');
+  const elUltimo = document.getElementById('k-cap-ultimo');
+  const elUltimoNom = document.getElementById('k-cap-ultimo-nombre');
+  if (elCursos) elCursos.textContent = CURSOS.filter(c=>c.activo).length;
+  if (elTotal)  elTotal.textContent  = CAP_REGS.length;
+  if (elUltimo && CAP_REGS.length) {
+    elUltimo.textContent = fFecha(CAP_REGS[0].fecha_completado).replace(/de \d{4}/,'').trim();
+    elUltimoNom.textContent = CAP_REGS[0].nombre_participante;
+  }
+
+  // Badge sidebar
+  const badge = document.getElementById('cap-badge');
+  if (badge) badge.textContent = CAP_REGS.length;
+
+  // Poblar select de cursos en filtro y modal
+  const filtroSelect = document.getElementById('cap-filtro-curso');
+  const modalSelect  = document.getElementById('reg-cap-curso');
+  if (filtroSelect) {
+    filtroSelect.innerHTML = '<option value="">Todos los cursos</option>' +
+      CURSOS.map(c=>`<option value="${c.id}">${c.nombre}</option>`).join('');
+  }
+  if (modalSelect) {
+    modalSelect.innerHTML = '<option value="">Seleccionar curso…</option>' +
+      CURSOS.map(c=>`<option value="${c.id}">${c.nombre}</option>`).join('');
+  }
+
+  // Lista de cursos disponibles
+  const cursosLista = document.getElementById('cursos-lista');
+  if (cursosLista) {
+    cursosLista.innerHTML = CURSOS.length
+      ? CURSOS.map(c => {
+          const regs = CAP_REGS.filter(r => r.capacitacion_id === c.id).length;
+          return `<div class="arow">
+            <div>
+              <div class="an">${c.nombre}</div>
+              <div class="as">${c.tipo} · ${c.duracion_horas ? c.duracion_horas+'h' : '—'} · Vigencia: ${c.vigencia_meses} meses</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
+              <span class="badge b-azul" style="font-size:10px">${regs} registros</span>
+              <span class="badge ${c.tipo==='Obligatoria'?'b-rojo':'b-obs'}">${c.tipo}</span>
+              ${esAdmin()?`<button class="btn btn-r btn-sm" onclick="delCurso(${c.id})">✕</button>`:''}
+            </div>
+          </div>`;
+        }).join('')
+      : '<div class="empty"><p>Sin cursos registrados</p></div>';
+  }
+
+  // Filtros tabla registros
+  const filtroCurso  = document.getElementById('cap-filtro-curso')?.value;
+  const filtroCiudad = document.getElementById('cap-filtro-ciudad')?.value;
+  const filtroNombre = document.getElementById('cap-filtro-nombre')?.value.toLowerCase();
+
+  let regs = [...CAP_REGS];
+  if (filtroCurso)  regs = regs.filter(r => r.capacitacion_id == filtroCurso);
+  if (filtroCiudad) regs = regs.filter(r => r.ciudad === filtroCiudad);
+  if (filtroNombre) regs = regs.filter(r => r.nombre_participante.toLowerCase().includes(filtroNombre));
+
+  const tbody = document.getElementById('cap-tbody');
+  if (!tbody) return;
+  tbody.innerHTML = regs.length
+    ? regs.map(r => {
+        const curso = CURSOS.find(c => c.id === r.capacitacion_id);
+        return `<tr>
+          <td><strong>${r.nombre_participante}</strong>${r.email_participante?`<br><small style="color:var(--gris-500)">${r.email_participante}</small>`:''}</td>
+          <td>${curso ? curso.nombre : '—'}</td>
+          <td>${r.ciudad||'—'}</td>
+          <td>${r.cargo||'—'}</td>
+          <td>${fFecha(r.fecha_completado)}</td>
+          <td style="font-size:12px;color:var(--gris-500)">${r.observaciones||'—'}</td>
+          <td><div style="display:flex;gap:4px">
+            ${esGestor()?`<button class="btn btn-s btn-sm" onclick="editarRegCap(${r.id})">Editar</button>`:''}
+            ${esAdmin()?`<button class="btn btn-r btn-sm" onclick="delRegCap(${r.id})">✕</button>`:''}
+          </div></td>
+        </tr>`;
+      }).join('')
+    : '<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--gris-500)">Sin registros. Usa "Registrar capacitación" para agregar.</td></tr>';
+}
+
+function abrirRegCap() {
+  document.getElementById('reg-cap-id').value = '';
+  document.getElementById('modal-reg-cap-title').textContent = 'Registrar capacitación completada';
+  ['reg-cap-nombre','reg-cap-cargo','reg-cap-email','reg-cap-obs'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('reg-cap-ciudad').value = '';
+  document.getElementById('reg-cap-curso').value = '';
+  document.getElementById('reg-cap-fecha').value = new Date().toISOString().split('T')[0];
+  document.getElementById('modal-reg-cap').classList.add('open');
+}
+
+function editarRegCap(id) {
+  const r = CAP_REGS.find(x => x.id === id);
+  if (!r) return;
+  document.getElementById('reg-cap-id').value = r.id;
+  document.getElementById('modal-reg-cap-title').textContent = 'Editar registro';
+  document.getElementById('reg-cap-curso').value = r.capacitacion_id;
+  document.getElementById('reg-cap-nombre').value = r.nombre_participante;
+  document.getElementById('reg-cap-ciudad').value = r.ciudad || '';
+  document.getElementById('reg-cap-cargo').value = r.cargo || '';
+  document.getElementById('reg-cap-fecha').value = r.fecha_completado;
+  document.getElementById('reg-cap-email').value = r.email_participante || '';
+  document.getElementById('reg-cap-obs').value = r.observaciones || '';
+  document.getElementById('modal-reg-cap').classList.add('open');
+}
+
+function cerrarRegCap() { document.getElementById('modal-reg-cap').classList.remove('open'); }
+
+async function guardarRegCap() {
+  const id     = document.getElementById('reg-cap-id').value;
+  const nombre = document.getElementById('reg-cap-nombre').value.trim();
+  const curso  = document.getElementById('reg-cap-curso').value;
+  const fecha  = document.getElementById('reg-cap-fecha').value;
+  if (!nombre || !curso || !fecha) { toast('Completa participante, curso y fecha.'); return; }
+  const r = {
+    capacitacion_id: parseInt(curso),
+    nombre_participante: nombre,
+    email_participante: document.getElementById('reg-cap-email').value.trim(),
+    ciudad: document.getElementById('reg-cap-ciudad').value,
+    cargo: document.getElementById('reg-cap-cargo').value.trim(),
+    fecha_completado: fecha,
+    observaciones: document.getElementById('reg-cap-obs').value.trim()
+  };
+  let error;
+  if (id) { ({ error } = await sb.from('capacitacion_registros').update(r).eq('id', id)); }
+  else     { ({ error } = await sb.from('capacitacion_registros').insert([r])); }
+  if (error) { toast('Error: ' + error.message); return; }
+  await cargarDatos();
+  cerrarRegCap();
+  renderCapacitaciones();
+  toast(id ? 'Registro actualizado.' : `Capacitación de "${nombre}" registrada.`);
+}
+
+async function delRegCap(id) {
+  if (!confirm('¿Eliminar este registro?')) return;
+  const { error } = await sb.from('capacitacion_registros').delete().eq('id', id);
+  if (error) { toast('Error: ' + error.message); return; }
+  await cargarDatos();
+  renderCapacitaciones();
+  toast('Registro eliminado.');
+}
+
+function abrirCurso() {
+  document.getElementById('curso-id').value = '';
+  document.getElementById('modal-curso-title').textContent = 'Agregar curso';
+  ['curso-nombre','curso-desc'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('curso-tipo').value = 'Obligatoria';
+  document.getElementById('curso-horas').value = '';
+  document.getElementById('curso-vigencia').value = '12';
+  document.getElementById('modal-curso').classList.add('open');
+}
+
+function cerrarCurso() { document.getElementById('modal-curso').classList.remove('open'); }
+
+async function guardarCurso() {
+  const id     = document.getElementById('curso-id').value;
+  const nombre = document.getElementById('curso-nombre').value.trim();
+  if (!nombre) { toast('Ingresa el nombre del curso.'); return; }
+  const c = {
+    nombre,
+    descripcion: document.getElementById('curso-desc').value.trim(),
+    tipo: document.getElementById('curso-tipo').value,
+    duracion_horas: parseFloat(document.getElementById('curso-horas').value) || null,
+    vigencia_meses: parseInt(document.getElementById('curso-vigencia').value) || 12,
+    activo: true
+  };
+  let error;
+  if (id) { ({ error } = await sb.from('capacitaciones').update(c).eq('id', id)); }
+  else     { ({ error } = await sb.from('capacitaciones').insert([c])); }
+  if (error) { toast('Error: ' + error.message); return; }
+  await cargarDatos();
+  cerrarCurso();
+  renderCapacitaciones();
+  toast(id ? 'Curso actualizado.' : `Curso "${nombre}" agregado.`);
+}
+
+async function delCurso(id) {
+  if (!confirm('¿Eliminar este curso? Se eliminarán también todos sus registros.')) return;
+  const { error } = await sb.from('capacitaciones').delete().eq('id', id);
+  if (error) { toast('Error: ' + error.message); return; }
+  await cargarDatos();
+  renderCapacitaciones();
+  toast('Curso eliminado.');
+}
+
+// ═══════════════════════════════════════
+// CIERRE DE SESIÓN POR INACTIVIDAD (30 min)
+// ═══════════════════════════════════════
+let inactividadTimer = null;
+const INACTIVIDAD_MS = 30 * 60 * 1000; // 30 minutos
+
+function resetInactividad() {
+  clearTimeout(inactividadTimer);
+  inactividadTimer = setTimeout(() => {
+    toast('Sesión cerrada por inactividad.');
+    setTimeout(() => doLogout(), 2000);
+  }, INACTIVIDAD_MS);
+}
+
+function iniciarMonitorInactividad() {
+  ['mousemove','keydown','click','scroll','touchstart'].forEach(ev => {
+    document.addEventListener(ev, resetInactividad, { passive: true });
+  });
+  resetInactividad();
 }
 
 document.getElementById('d-fecha').value = new Date().toISOString().split('T')[0];
