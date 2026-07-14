@@ -1056,7 +1056,8 @@ function verCertificado(codigo) {
 function abrirPDF(url, titulo) {
   if (!url) { toast('Este documento no tiene PDF adjunto.'); return; }
   document.getElementById('pdf-titulo').textContent = titulo || 'Documento';
-  const visorUrl = 'https://docs.google.com/viewer?embedded=true&url=' + encodeURIComponent(url);
+  // Agregar #toolbar=0&navpanes=0 para ocultar barra de herramientas del navegador
+  const visorUrl = url + '#toolbar=0&navpanes=0&scrollbar=1';
   document.getElementById('pdf-frame').src = visorUrl;
   document.getElementById('pdf-visor').classList.add('open');
   document.body.style.overflow = 'hidden';
