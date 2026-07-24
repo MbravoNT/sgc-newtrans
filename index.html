@@ -1016,9 +1016,11 @@ function esLector() { return MI_ROL === 'Lector'; }
 async function cargarRol(userId) {
   if (!userId) { MI_ROL = 'Lector'; return; }
   try {
-    const { data } = await sb.from('perfiles').select('rol').eq('id', userId).single();
+    const { data, error } = await sb.from('perfiles').select('rol').eq('id', userId.toString()).single();
+    if (error) { console.warn('cargarRol error:', error.message); MI_ROL = 'Lector'; return; }
     MI_ROL = data?.rol || 'Lector';
-  } catch { MI_ROL = 'Lector'; }
+    console.log('Rol cargado:', MI_ROL);
+  } catch(e) { console.warn('cargarRol exception:', e); MI_ROL = 'Lector'; }
 }
 
 function aplicarRol() {
