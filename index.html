@@ -1376,42 +1376,121 @@ function renderNC() {
       <div class="nc-item">
         <div class="nc-bar nb-${n.severidad==='Alta'?'alta':n.severidad==='Media'?'media':'baja'}"></div>
         <div class="nc-body">
-          <div class="nc-title">${n.titulo}</div>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px">
+            <span class="code" style="font-size:10px">${n.correlativo||'—'}</span>
+            ${bSev(n.severidad)}
+            ${n.estado==='Abierta'?'<span class="badge b-rev">Abierta</span>':'<span class="badge b-ok">Cerrada</span>'}
+          </div>
+          <div class="nc-title">${n.titulo||n.descripcion?.substring(0,80)||'Sin descripción'}</div>
           <p style="font-size:12px;color:var(--gris-700);margin:4px 0">${n.descripcion||''}</p>
-          ${n.accion?`<p style="font-size:11px;color:var(--azul-med);margin:3px 0">→ Acción: ${n.accion}</p>`:''}
+          ${n.correccion_inmediata?`<p style="font-size:11px;color:var(--azul-med);margin:3px 0">→ Corrección: ${n.correccion_inmediata}</p>`:''}
+          ${n.accion?`<p style="font-size:11px;color:var(--verde);margin:3px 0">→ Acción: ${n.accion}</p>`:''}
           <div class="nc-meta">
-            <span>${n.tipo}</span><span>Cl. ${n.clausula||'—'}</span>
-            <span>Origen: ${n.origen||'—'}</span><span>Resp: ${n.responsable}</span>
+            <span>${n.tipo||'—'}</span>
+            <span>Fuente: ${n.origen||'—'}</span>
+            <span>Área: ${n.area||'—'}</span>
+            <span>Resp: ${n.responsable||'—'}</span>
             <span>Vence: ${fFecha(n.fecha_limite)}</span>
-            ${bSev(n.severidad)}${n.estado==='Abierta'?'<span class="badge b-rev">Abierta</span>':'<span class="badge b-ok">Cerrada</span>'}
+            ${n.clausula?`<span>Cl. ${n.clausula}</span>`:''}
           </div>
         </div>
-        ${n.estado==='Abierta'?`<button class="btn btn-s btn-sm" onclick="cerrarNCid(${n.id})" style="flex-shrink:0">Cerrar</button>`:''}
+        <div style="display:flex;flex-direction:column;gap:4px;flex-shrink:0">
+          ${esGestor()?`<button class="btn btn-s btn-sm" onclick="editarNC(${n.id})">Editar</button>`:''}
+          ${n.estado==='Abierta' && esGestor()?`<button class="btn btn-s btn-sm" onclick="cerrarNCid(${n.id})">Cerrar</button>`:''}
+          <button class="btn btn-s btn-sm" onclick="exportarNCPDF(${n.id})">PDF</button>
+        </div>
       </div>`).join('')
     : '<div class="empty"><svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg><p>Sin hallazgos registrados</p></div>';
 }
 
-function abrirNC() { document.getElementById('modal-nc').classList.add('open'); }
+function abrirNC() {
+  document.getElementById('nc-id').value = '';
+  document.getElementById('modal-nc-title').textContent = 'Registro de Hallazgo';
+  document.getElementById('nc-correlativo-display').textContent = 'Correlativo: se asignará al guardar';
+  const campos = ['nc-cliente','nc-area','nc-emisor','nc-cargo-emisor','nc-resp',
+    'nc-desc','nc-correccion','nc-analisis-causa','nc-accion'];
+  campos.forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
+  document.getElementById('nc-fecha-deteccion').value = new Date().toISOString().split('T')[0];
+  document.getElementById('nc-fecha').value = '';
+  document.getElementById('nc-sev').value = 'Media';
+  document.getElementById('nc-tipo').value = 'No Conformidad';
+  document.getElementById('nc-origen').value = 'Auditoría Interna';
+  document.getElementById('nc-cl').value = '';
+  document.getElementById('nc-tipo-accion').value = 'Corrección';
+  document.getElementById('modal-nc').classList.add('open');
+}
+
+function editarNC(id) {
+  const n = NCS.find(x => x.id === id);
+  if (!n) return;
+  document.getElementById('nc-id').value = n.id;
+  document.getElementById('modal-nc-title').textContent = 'Editar Hallazgo';
+  document.getElementById('nc-correlativo-display').textContent = `Correlativo: ${n.correlativo||'—'}`;
+  document.getElementById('nc-cliente').value = n.cliente||'';
+  document.getElementById('nc-area').value = n.area||'';
+  document.getElementById('nc-emisor').value = n.emisor||'';
+  document.getElementById('nc-cargo-emisor').value = n.cargo_emisor||'';
+  document.getElementById('nc-resp').value = n.responsable||'';
+  document.getElementById('nc-fecha-deteccion').value = n.fecha_deteccion||'';
+  document.getElementById('nc-fecha').value = n.fecha_limite||'';
+  document.getElementById('nc-sev').value = n.severidad||'Media';
+  document.getElementById('nc-tipo').value = n.tipo||'No Conformidad';
+  document.getElementById('nc-origen').value = n.origen||'Auditoría Interna';
+  document.getElementById('nc-cl').value = n.clausula||'';
+  document.getElementById('nc-desc').value = n.descripcion||'';
+  document.getElementById('nc-tipo-accion').value = n.tipo_accion||'Corrección';
+  document.getElementById('nc-correccion').value = n.correccion_inmediata||'';
+  document.getElementById('nc-analisis-causa').value = n.analisis_causa||'';
+  document.getElementById('nc-accion').value = n.accion||'';
+  document.getElementById('modal-nc').classList.add('open');
+}
 function cerrarNC() { document.getElementById('modal-nc').classList.remove('open'); }
 
 async function guardarNC() {
-  const titulo = document.getElementById('nc-titulo').value.trim();
-  const resp   = document.getElementById('nc-resp').value.trim();
-  const fecha  = document.getElementById('nc-fecha').value;
-  if (!titulo||!resp||!fecha) { toast('Completa los campos obligatorios.'); return; }
+  const id   = document.getElementById('nc-id').value;
+  const desc = document.getElementById('nc-desc').value.trim();
+  const resp = document.getElementById('nc-resp').value.trim();
+  const emisor = document.getElementById('nc-emisor').value.trim();
+  const fecha = document.getElementById('nc-fecha').value;
+  const fechaDet = document.getElementById('nc-fecha-deteccion').value;
+  if (!desc||!resp||!emisor||!fecha||!fechaDet) {
+    toast('Completa los campos obligatorios: descripción, emisor, responsable y fechas.');
+    return;
+  }
   const n = {
-    titulo, tipo: document.getElementById('nc-tipo').value,
-    severidad: document.getElementById('nc-sev').value, clausula: document.getElementById('nc-cl').value,
-    origen: document.getElementById('nc-origen').value, responsable: resp, fecha_limite: fecha,
-    descripcion: document.getElementById('nc-desc').value, accion: document.getElementById('nc-accion').value, estado:'Abierta'
+    titulo: desc.substring(0,100),
+    tipo: document.getElementById('nc-tipo').value,
+    severidad: document.getElementById('nc-sev').value,
+    clausula: document.getElementById('nc-cl').value,
+    origen: document.getElementById('nc-origen').value,
+    responsable: resp,
+    fecha_limite: fecha,
+    descripcion: desc,
+    accion: document.getElementById('nc-accion').value,
+    estado: id ? undefined : 'Abierta',
+    // Campos nuevos
+    cliente: document.getElementById('nc-cliente').value.trim(),
+    area: document.getElementById('nc-area').value.trim(),
+    emisor: emisor,
+    cargo_emisor: document.getElementById('nc-cargo-emisor').value.trim(),
+    fecha_deteccion: fechaDet,
+    tipo_accion: document.getElementById('nc-tipo-accion').value,
+    correccion_inmediata: document.getElementById('nc-correccion').value.trim(),
+    analisis_causa: document.getElementById('nc-analisis-causa').value.trim(),
   };
-  const { error } = await sb.from('hallazgos').insert([n]);
-  if (error) { toast('Error al guardar hallazgo: ' + error.message); return; }
+  if (id) delete n.estado;
+
+  let error;
+  if (id) {
+    ({ error } = await sb.from('hallazgos').update(n).eq('id', id));
+  } else {
+    ({ error } = await sb.from('hallazgos').insert([n]));
+  }
+  if (error) { toast('Error al guardar: ' + error.message); return; }
   await cargarDatos();
   cerrarNC();
   renderNC();
-  toast(`Hallazgo registrado: "${titulo}"`);
-  ['nc-titulo','nc-resp','nc-fecha','nc-desc','nc-accion'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  toast(id ? 'Hallazgo actualizado.' : 'Hallazgo registrado correctamente.');
 }
 
 async function cerrarNCid(id) {
@@ -2256,6 +2335,94 @@ function iniciarMonitorInactividad() {
     document.addEventListener(ev, resetInactividad, { passive: true });
   });
   resetInactividad();
+}
+
+// ═══════════════════════════════════════
+// EXPORTAR HALLAZGO A PDF
+// ═══════════════════════════════════════
+function exportarNCPDF(id) {
+  const n = NCS.find(x => x.id === id);
+  if (!n) return;
+
+  const html = `
+    <html><head><meta charset="UTF-8">
+    <style>
+      body { font-family: Arial, sans-serif; font-size: 11px; color: #1C1F26; margin: 0; padding: 20px; }
+      .header { background: #1A3A5C; color: white; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+      .header-title { font-size: 14px; font-weight: bold; }
+      .header-code { font-size: 11px; opacity: 0.8; }
+      .correlativo { background: #EBF2FB; border-left: 4px solid #1A3A5C; padding: 8px 12px; margin-bottom: 16px; font-weight: bold; font-size: 13px; color: #1A3A5C; }
+      .seccion { background: #1A3A5C; color: white; padding: 5px 10px; font-size: 11px; font-weight: bold; margin: 14px 0 8px; }
+      .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+      .campo { margin-bottom: 8px; }
+      .campo-label { font-size: 9px; font-weight: bold; color: #6B7280; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 2px; }
+      .campo-valor { border: 1px solid #CBD0D8; padding: 5px 8px; min-height: 22px; background: #F9FAFB; border-radius: 3px; }
+      .campo-textarea { border: 1px solid #CBD0D8; padding: 5px 8px; min-height: 50px; background: #F9FAFB; border-radius: 3px; white-space: pre-wrap; }
+      .badge-sev { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: bold; }
+      .badge-alta { background: #FDEAEA; color: #8B1F1F; border: 1px solid #E8AAAA; }
+      .badge-media { background: #FEF3DC; color: #7A4A00; border: 1px solid #F0C97A; }
+      .badge-baja { background: #E8F5EE; color: #1E6B45; border: 1px solid #A3CFBA; }
+      .footer { margin-top: 20px; border-top: 1px solid #CBD0D8; padding-top: 8px; font-size: 9px; color: #6B7280; display: flex; justify-content: space-between; }
+      .firmas { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-top: 16px; }
+      .firma { border-top: 1px solid #1A3A5C; padding-top: 6px; text-align: center; font-size: 9px; color: #6B7280; }
+    </style></head><body>
+    <div class="header">
+      <div class="header-title">NEWTRANS LOGISTIC CHILE S.A.<br><span style="font-size:11px;font-weight:normal">Registro de Hallazgos, Acciones Correctivas y Preventivas</span></div>
+      <div class="header-code">SGC-NEW-RG-14</div>
+    </div>
+
+    <div class="correlativo">${n.correlativo || 'Correlativo pendiente'}</div>
+
+    <div class="seccion">I. DETECCIÓN DEL HALLAZGO</div>
+    <div class="grid2">
+      <div class="campo"><div class="campo-label">Cliente</div><div class="campo-valor">${n.cliente||'—'}</div></div>
+      <div class="campo"><div class="campo-label">Fecha de detección</div><div class="campo-valor">${n.fecha_deteccion ? new Date(n.fecha_deteccion+'T00:00:00').toLocaleDateString('es-CL') : '—'}</div></div>
+    </div>
+    <div class="grid2">
+      <div class="campo"><div class="campo-label">Clasificación / Severidad</div><div class="campo-valor"><span class="badge-sev badge-${(n.severidad||'').toLowerCase()}">${n.severidad||'—'}</span></div></div>
+      <div class="campo"><div class="campo-label">Tipo</div><div class="campo-valor">${n.tipo||'—'}</div></div>
+    </div>
+    <div class="grid2">
+      <div class="campo"><div class="campo-label">Fuente del hallazgo</div><div class="campo-valor">${n.origen||'—'}</div></div>
+      <div class="campo"><div class="campo-label">Cláusula ISO 9001</div><div class="campo-valor">${n.clausula||'—'}</div></div>
+    </div>
+    <div class="campo"><div class="campo-label">Área</div><div class="campo-valor">${n.area||'—'}</div></div>
+    <div class="campo"><div class="campo-label">Descripción del hallazgo</div><div class="campo-textarea">${n.descripcion||'—'}</div></div>
+    <div class="grid2">
+      <div class="campo"><div class="campo-label">Emisor</div><div class="campo-valor">${n.emisor||'—'}</div></div>
+      <div class="campo"><div class="campo-label">Cargo</div><div class="campo-valor">${n.cargo_emisor||'—'}</div></div>
+    </div>
+    <div class="grid2">
+      <div class="campo"><div class="campo-label">Responsable del área</div><div class="campo-valor">${n.responsable||'—'}</div></div>
+      <div class="campo"><div class="campo-label">Fecha límite</div><div class="campo-valor">${n.fecha_limite ? new Date(n.fecha_limite+'T00:00:00').toLocaleDateString('es-CL') : '—'}</div></div>
+    </div>
+
+    <div class="seccion">II. TRATAMIENTO DEL HALLAZGO</div>
+    <div class="campo"><div class="campo-label">Identificación de la acción</div><div class="campo-valor">${n.tipo_accion||'—'}</div></div>
+    <div class="campo"><div class="campo-label">Corrección inmediata</div><div class="campo-textarea">${n.correccion_inmediata||'—'}</div></div>
+
+    <div class="seccion">III. INVESTIGACIÓN DE CAUSAS Y ACCIONES</div>
+    <div class="campo"><div class="campo-label">Análisis de causa</div><div class="campo-textarea">${n.analisis_causa||'—'}</div></div>
+    <div class="campo"><div class="campo-label">Descripción de la acción correctiva/preventiva</div><div class="campo-textarea">${n.accion||'—'}</div></div>
+
+    <div class="firmas">
+      <div class="firma">Emisor<br><br>${n.emisor||'_______________'}</div>
+      <div class="firma">Responsable área<br><br>${n.responsable||'_______________'}</div>
+      <div class="firma">Encargado SGC<br><br>_______________</div>
+    </div>
+
+    <div class="footer">
+      <span>Newtrans Logistic Chile S.A. · ISO 9001:2015 · NT 147 · NT 208</span>
+      <span>Fecha impresión: ${new Date().toLocaleDateString('es-CL')}</span>
+    </div>
+    </body></html>
+  `;
+
+  const ventana = window.open('', '_blank', 'width=800,height=900');
+  ventana.document.write(html);
+  ventana.document.close();
+  ventana.focus();
+  setTimeout(() => ventana.print(), 500);
 }
 
 document.getElementById('d-fecha').value = new Date().toISOString().split('T')[0];
