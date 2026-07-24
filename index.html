@@ -429,10 +429,86 @@ tbody tr:hover td{background:var(--gris-50)}
 
     <div class="page" id="page-reclamos">
       <div class="ph">
-        <div class="ph-text"><h1>Reclamos de clientes</h1><p>Gestión y seguimiento de reclamos — cl. 8.2.1 y 10.2.</p></div>
-        <button class="btn btn-p" onclick="abrirReclamo()"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Registrar reclamo</button>
+        <div class="ph-text"><h1>Estatus de Acciones Correctivas y Preventivas</h1><p>Seguimiento RG-15 — Hallazgos con origen en cliente · Cl. 10.2 ISO 9001:2015</p></div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <button class="btn btn-s" onclick="exportarRG15PDF()">
+            <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            Exportar RG-15
+          </button>
+          <button class="btn btn-p" onclick="abrirReclamo()">
+            <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Registrar reclamo
+          </button>
+        </div>
       </div>
-      <div class="card"><div id="rec-lista"></div></div>
+
+      <!-- Filtros -->
+      <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
+        <input type="text" id="rec-filtro-cliente" placeholder="Filtrar por cliente / origen…" oninput="renderRec()" style="padding:7px 10px;border:1px solid var(--gris-300);border-radius:var(--radio-sm);font-size:13px;flex:1;min-width:200px" />
+        <select id="rec-filtro-status" onchange="renderRec()" style="padding:7px 10px;border:1px solid var(--gris-300);border-radius:var(--radio-sm);font-size:13px">
+          <option value="">Todos los estados</option>
+          <option value="P">Pendiente</option>
+          <option value="R">Resuelto</option>
+        </select>
+        <select id="rec-filtro-efectiva" onchange="renderRec()" style="padding:7px 10px;border:1px solid var(--gris-300);border-radius:var(--radio-sm);font-size:13px">
+          <option value="">¿Acción efectiva?</option>
+          <option value="si">Sí</option>
+          <option value="no">No</option>
+          <option value="pendiente">Pendiente evaluación</option>
+        </select>
+      </div>
+
+      <!-- KPI rápido -->
+      <div class="g4" style="margin-bottom:16px">
+        <div class="kpi">
+          <div class="kpi-val" style="color:var(--azul)" id="k-rec-total">—</div>
+          <div class="kpi-lbl">Total reclamos</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-val" style="color:var(--ambar)" id="k-rec-pendientes">—</div>
+          <div class="kpi-lbl">Plan pendiente</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-val" style="color:var(--verde)" id="k-rec-resueltos">—</div>
+          <div class="kpi-lbl">Resueltos</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-val" style="color:var(--rojo)" id="k-rec-no-efectivos">—</div>
+          <div class="kpi-lbl">Acción no efectiva</div>
+        </div>
+      </div>
+
+      <!-- Tabla RG-15 -->
+      <div class="card">
+        <div class="tw">
+          <table>
+            <thead>
+              <tr>
+                <th>N°</th>
+                <th>Fecha hallazgo</th>
+                <th>Cliente / Origen</th>
+                <th>Tipo acción</th>
+                <th>Responsable hallazgo</th>
+                <th>Descripción acción</th>
+                <th>Fecha término prog.</th>
+                <th>Fecha término real</th>
+                <th>Status plan</th>
+                <th>Status seguimiento</th>
+                <th>¿Efectiva?</th>
+                <th>Fecha cierre</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="rec-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Lista de reclamos adicionales (no hallazgos) -->
+      <div class="card" style="margin-top:14px">
+        <div class="card-title"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>Reclamos directos de clientes</div>
+        <div id="rec-lista"></div>
+      </div>
     </div>
 
     <div class="page" id="page-auditoria">
@@ -1503,23 +1579,221 @@ async function cerrarNCid(id) {
 }
 
 function renderRec() {
-  document.getElementById('rec-badge').textContent = RECS.filter(r=>r.estado==='Abierto').length;
-  document.getElementById('rec-lista').innerHTML = RECS.length
-    ? RECS.map(r=>`
-      <div class="nc-item">
-        <div class="nc-bar nb-alta"></div>
-        <div class="nc-body">
-          <div class="nc-title">${r.cliente}</div>
-          <p style="font-size:12px;color:var(--gris-700);margin:4px 0">${r.descripcion||''}</p>
-          ${r.accion?`<p style="font-size:11px;color:var(--azul-med);margin:3px 0">→ ${r.accion}</p>`:''}
-          <div class="nc-meta">
-            <span>Categoría: ${r.categoria}</span><span>Resp: ${r.responsable}</span>
-            <span>Vence: ${fFecha(r.fecha_limite)}</span>${r.estado==='Abierto'?'<span class="badge b-rev">Abierto</span>':'<span class="badge b-ok">Cerrado</span>'}
+  // Reclamos directos (tabla existente)
+  const recAbiertos = RECS.filter(r=>r.estado==='Abierto').length;
+  document.getElementById('rec-badge').textContent = recAbiertos;
+  const listaEl = document.getElementById('rec-lista');
+  if (listaEl) {
+    listaEl.innerHTML = RECS.length
+      ? RECS.map(r=>`
+        <div class="nc-item">
+          <div class="nc-bar nb-alta"></div>
+          <div class="nc-body">
+            <div class="nc-title">${r.cliente}</div>
+            <p style="font-size:12px;color:var(--gris-700);margin:4px 0">${r.descripcion||''}</p>
+            ${r.accion?`<p style="font-size:11px;color:var(--azul-med);margin:3px 0">→ ${r.accion}</p>`:''}
+            <div class="nc-meta">
+              <span>Cat: ${r.categoria}</span><span>Resp: ${r.responsable}</span>
+              <span>Vence: ${fFecha(r.fecha_limite)}</span>
+              ${r.estado==='Abierto'?'<span class="badge b-rev">Abierto</span>':'<span class="badge b-ok">Cerrado</span>'}
+            </div>
           </div>
-        </div>
-        ${r.estado==='Abierto'?`<button class="btn btn-s btn-sm" onclick="cerrarRecid(${r.id})">Cerrar</button>`:''}
-      </div>`).join('')
-    : '<div class="empty"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg><p>Sin reclamos registrados</p></div>';
+          ${r.estado==='Abierto' && esGestor()?`<button class="btn btn-s btn-sm" onclick="cerrarRecid(${r.id})">Cerrar</button>`:''}
+        </div>`).join('')
+      : '<div class="empty"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg><p>Sin reclamos registrados</p></div>';
+  }
+
+  // Vista RG-15 — hallazgos con seguimiento
+  const filCliente = document.getElementById('rec-filtro-cliente')?.value.toLowerCase()||'';
+  const filStatus  = document.getElementById('rec-filtro-status')?.value||'';
+  const filEfectiva = document.getElementById('rec-filtro-efectiva')?.value||'';
+
+  // Todos los hallazgos como base del RG-15
+  let data = [...NCS];
+  if (filCliente) data = data.filter(n => 
+    (n.cliente||'').toLowerCase().includes(filCliente) ||
+    (n.origen||'').toLowerCase().includes(filCliente)
+  );
+  if (filStatus) data = data.filter(n => (n.status_plan||'P') === filStatus);
+  if (filEfectiva === 'si')       data = data.filter(n => n.accion_efectiva === true);
+  if (filEfectiva === 'no')       data = data.filter(n => n.accion_efectiva === false);
+  if (filEfectiva === 'pendiente') data = data.filter(n => n.accion_efectiva === null || n.accion_efectiva === undefined);
+
+  // KPI
+  const kTotal = document.getElementById('k-rec-total');
+  const kPend  = document.getElementById('k-rec-pendientes');
+  const kRes   = document.getElementById('k-rec-resueltos');
+  const kNoEf  = document.getElementById('k-rec-no-efectivos');
+  if (kTotal) kTotal.textContent = NCS.length;
+  if (kPend)  kPend.textContent  = NCS.filter(n=>(n.status_plan||'P')==='P').length;
+  if (kRes)   kRes.textContent   = NCS.filter(n=>n.status_plan==='R').length;
+  if (kNoEf)  kNoEf.textContent  = NCS.filter(n=>n.accion_efectiva===false).length;
+
+  const bStatus = s => s==='R'
+    ? '<span class="badge b-ok" style="font-size:10px">R</span>'
+    : '<span class="badge b-rev" style="font-size:10px">P</span>';
+
+  const tbody = document.getElementById('rec-tbody');
+  if (!tbody) return;
+  tbody.innerHTML = data.length
+    ? data.map((n,i) => `<tr>
+        <td><span class="code" style="font-size:10px">${n.correlativo||String(i+1).padStart(3,'0')}</span></td>
+        <td>${fFecha(n.fecha_deteccion||n.created_at)}</td>
+        <td><strong>${n.cliente||n.origen||'—'}</strong></td>
+        <td style="font-size:11px">${n.tipo_accion||'—'}</td>
+        <td style="font-size:11px">${n.resp_hallazgo_nombre||n.responsable||'—'}${n.resp_hallazgo_cargo?`<br><small style="color:var(--gris-500)">${n.resp_hallazgo_cargo}</small>`:''}</td>
+        <td style="font-size:11px;max-width:160px;overflow:hidden;text-overflow:ellipsis">${(n.desc_accion_correctiva||n.accion||'—').substring(0,80)}</td>
+        <td style="font-size:11px">${fFecha(n.fecha_termino_programado)}</td>
+        <td style="font-size:11px">${fFecha(n.fecha_termino_real)}</td>
+        <td>${bStatus(n.status_plan||'P')}</td>
+        <td>${bStatus(n.status_seguimiento||'P')}</td>
+        <td style="text-align:center">${n.accion_efectiva===true?'<span class="badge b-ok" style="font-size:10px">Sí</span>':n.accion_efectiva===false?'<span class="badge b-rojo" style="font-size:10px">No</span>':'<span class="badge b-obs" style="font-size:10px">—</span>'}</td>
+        <td style="font-size:11px">${fFecha(n.fecha_cierre)}</td>
+        <td><div style="display:flex;gap:3px">
+          ${esGestor()?`<button class="btn btn-s btn-sm" onclick="abrirSeg(${n.id})">Seguimiento</button>`:''}
+          <button class="btn btn-s btn-sm" onclick="exportarRG15PDF()">PDF</button>
+        </div></td>
+      </tr>`).join('')
+    : '<tr><td colspan="13" style="text-align:center;padding:28px;color:var(--gris-500)">Sin hallazgos registrados aún.</td></tr>';
+}
+
+function abrirSeg(id) {
+  const n = NCS.find(x => x.id === id);
+  if (!n) return;
+  document.getElementById('seg-hallazgo-id').value = n.id;
+  document.getElementById('seg-correlativo').textContent = n.correlativo || '—';
+  document.getElementById('seg-resp-hall-nombre').value = n.resp_hallazgo_nombre||'';
+  document.getElementById('seg-resp-hall-cargo').value  = n.resp_hallazgo_cargo||'';
+  document.getElementById('seg-resp-esp-nombre').value  = n.resp_especifica_nombre||'';
+  document.getElementById('seg-resp-esp-cargo').value   = n.resp_especifica_cargo||'';
+  document.getElementById('seg-resp-cor-nombre').value  = n.resp_correctiva_nombre||'';
+  document.getElementById('seg-resp-cor-cargo').value   = n.resp_correctiva_cargo||'';
+  document.getElementById('seg-desc-correctiva').value  = n.desc_accion_correctiva||'';
+  document.getElementById('seg-fecha-recepcion').value  = n.fecha_recepcion||'';
+  document.getElementById('seg-fecha-prog').value       = n.fecha_termino_programado||'';
+  document.getElementById('seg-fecha-real').value       = n.fecha_termino_real||'';
+  document.getElementById('seg-status-plan').value      = n.status_plan||'P';
+  document.getElementById('seg-fecha-seguimiento').value= n.fecha_seguimiento||'';
+  document.getElementById('seg-status-seg').value       = n.status_seguimiento||'P';
+  document.getElementById('seg-efectiva').value         = n.accion_efectiva===true?'true':n.accion_efectiva===false?'false':'';
+  document.getElementById('seg-fecha-cierre').value     = n.fecha_cierre||'';
+  document.getElementById('modal-seg').classList.add('open');
+}
+
+function cerrarSeg() { document.getElementById('modal-seg').classList.remove('open'); }
+
+async function guardarSeg() {
+  const id = document.getElementById('seg-hallazgo-id').value;
+  if (!id) return;
+  const efectiva = document.getElementById('seg-efectiva').value;
+  const updates = {
+    resp_hallazgo_nombre:    document.getElementById('seg-resp-hall-nombre').value.trim(),
+    resp_hallazgo_cargo:     document.getElementById('seg-resp-hall-cargo').value.trim(),
+    resp_especifica_nombre:  document.getElementById('seg-resp-esp-nombre').value.trim(),
+    resp_especifica_cargo:   document.getElementById('seg-resp-esp-cargo').value.trim(),
+    resp_correctiva_nombre:  document.getElementById('seg-resp-cor-nombre').value.trim(),
+    resp_correctiva_cargo:   document.getElementById('seg-resp-cor-cargo').value.trim(),
+    desc_accion_correctiva:  document.getElementById('seg-desc-correctiva').value.trim(),
+    fecha_recepcion:         document.getElementById('seg-fecha-recepcion').value||null,
+    fecha_termino_programado:document.getElementById('seg-fecha-prog').value||null,
+    fecha_termino_real:      document.getElementById('seg-fecha-real').value||null,
+    status_plan:             document.getElementById('seg-status-plan').value,
+    fecha_seguimiento:       document.getElementById('seg-fecha-seguimiento').value||null,
+    status_seguimiento:      document.getElementById('seg-status-seg').value,
+    accion_efectiva:         efectiva===''?null:efectiva==='true',
+    fecha_cierre:            document.getElementById('seg-fecha-cierre').value||null,
+  };
+  const { error } = await sb.from('hallazgos').update(updates).eq('id', id);
+  if (error) { toast('Error al guardar seguimiento: ' + error.message); return; }
+  await cargarDatos();
+  cerrarSeg();
+  renderRec();
+  toast('Seguimiento RG-15 guardado.');
+}
+
+function exportarRG15PDF() {
+  const data = NCS;
+  if (!data.length) { toast('Sin hallazgos para exportar.'); return; }
+
+  const filas = data.map((n,i) => `
+    <tr>
+      <td>${String(i+1).padStart(3,'0')}</td>
+      <td>${n.fecha_deteccion ? new Date(n.fecha_deteccion+'T00:00:00').toLocaleDateString('es-CL') : '—'}</td>
+      <td>${n.fecha_recepcion ? new Date(n.fecha_recepcion+'T00:00:00').toLocaleDateString('es-CL') : '—'}</td>
+      <td>${n.cliente||n.origen||'—'}</td>
+      <td style="text-align:center">${n.tipo_accion==='Acción Correctiva'?'X':''}</td>
+      <td style="text-align:center">${n.tipo_accion==='Acción Preventiva'?'X':''}</td>
+      <td>${n.resp_hallazgo_nombre||n.responsable||'—'}</td>
+      <td>${n.resp_hallazgo_cargo||'—'}</td>
+      <td>${n.resp_especifica_nombre||'—'}</td>
+      <td>${n.resp_especifica_cargo||'—'}</td>
+      <td>${n.resp_correctiva_nombre||'—'}</td>
+      <td>${n.resp_correctiva_cargo||'—'}</td>
+      <td>${(n.desc_accion_correctiva||n.accion||'—').substring(0,100)}</td>
+      <td>${n.fecha_termino_programado ? new Date(n.fecha_termino_programado+'T00:00:00').toLocaleDateString('es-CL') : '—'}</td>
+      <td>${n.fecha_termino_real ? new Date(n.fecha_termino_real+'T00:00:00').toLocaleDateString('es-CL') : '—'}</td>
+      <td style="text-align:center">${n.status_plan||'P'}</td>
+      <td>${n.fecha_seguimiento ? new Date(n.fecha_seguimiento+'T00:00:00').toLocaleDateString('es-CL') : '—'}</td>
+      <td style="text-align:center">${n.status_seguimiento||'P'}</td>
+      <td style="text-align:center">${n.accion_efectiva===true?'X':''}</td>
+      <td style="text-align:center">${n.accion_efectiva===false?'X':''}</td>
+      <td>${n.fecha_cierre ? new Date(n.fecha_cierre+'T00:00:00').toLocaleDateString('es-CL') : '—'}</td>
+    </tr>`).join('');
+
+  const html = `<html><head><meta charset="UTF-8">
+  <style>
+    body{font-family:Arial,sans-serif;font-size:7px;margin:10px}
+    h2{color:#1A3A5C;font-size:11px;margin-bottom:2px}
+    .sub{font-size:8px;color:#6B7280;margin-bottom:10px}
+    table{width:100%;border-collapse:collapse}
+    th{background:#1A3A5C;color:white;padding:3px 4px;font-size:7px;text-align:center;border:1px solid #CBD0D8}
+    td{padding:3px 4px;border:1px solid #CBD0D8;vertical-align:top}
+    tr:nth-child(even){background:#F4F5F7}
+    .footer{margin-top:10px;font-size:7px;color:#6B7280;display:flex;justify-content:space-between}
+  </style></head><body>
+  <h2>ESTATUS DE ACCIONES CORRECTIVAS Y PREVENTIVAS — SGC-NEW-RG-15</h2>
+  <div class="sub">Newtrans Logistic Chile S.A. · ISO 9001:2015 · NT 147 · NT 208 · Fecha: ${new Date().toLocaleDateString('es-CL')}</div>
+  <table>
+    <thead>
+      <tr>
+        <th rowspan="2">N°</th>
+        <th rowspan="2">Fecha Hallazgo</th>
+        <th rowspan="2">Fecha Recepción</th>
+        <th rowspan="2">Origen</th>
+        <th colspan="2">Tipo Acción</th>
+        <th colspan="2">Resp. Hallazgo</th>
+        <th colspan="2">Resp. Específica</th>
+        <th colspan="2">Resp. Correctiva</th>
+        <th rowspan="2">Descripción Acción</th>
+        <th colspan="2">Fecha Término</th>
+        <th rowspan="2">Status Plan</th>
+        <th rowspan="2">Fecha Seguimiento</th>
+        <th rowspan="2">Status Seg.</th>
+        <th colspan="2">¿Efectiva?</th>
+        <th rowspan="2">Fecha Cierre</th>
+      </tr>
+      <tr>
+        <th>Correctiva</th><th>Preventiva</th>
+        <th>Nombre</th><th>Cargo</th>
+        <th>Nombre</th><th>Cargo</th>
+        <th>Nombre</th><th>Cargo</th>
+        <th>Prog.</th><th>Real</th>
+        <th>Sí</th><th>No</th>
+      </tr>
+    </thead>
+    <tbody>${filas}</tbody>
+  </table>
+  <div class="footer">
+    <span>SGC-NEW-RG-15 · Revisión 0</span>
+    <span>Generado el ${new Date().toLocaleDateString('es-CL')} · mbravont.github.io/sgc-newtrans/</span>
+  </div>
+  </body></html>`;
+
+  const v = window.open('','_blank','width=1200,height=800');
+  v.document.write(html);
+  v.document.close();
+  v.focus();
+  setTimeout(()=>v.print(),500);
 }
 
 function abrirReclamo() { document.getElementById('rec-fecha').value=new Date().toISOString().split('T')[0]; document.getElementById('modal-rec').classList.add('open'); }
