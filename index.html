@@ -1399,7 +1399,7 @@ function verCarpeta(cid) {
         <td>${d.responsable}</td>
         <td>${bEstado(d.estado)}</td>
         <td><div style="display:flex;gap:4px">
-          ${d.url_archivo && !esLector()?`<button class="btn btn-s btn-sm" onclick="abrirPDF('${d.url_archivo}','${d.codigo} — ${d.nombre}')"><svg viewBox='0 0 24 24' style='width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2'><path d='M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z'/><polyline points='14 2 14 8 20 8'/></svg>Ver PDF</button>`:(d.url_archivo && esLector()?`<span class="badge b-obs" style="font-size:10px">Sin descarga</span>`:`<button class="btn btn-s btn-sm" disabled style="opacity:.4">PDF</button>`)}
+          ${d.url_archivo?`<button class="btn btn-s btn-sm" onclick="abrirPDF('${d.url_archivo}','${d.codigo} — ${d.nombre}')"><svg viewBox='0 0 24 24' style='width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2'><path d='M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z'/><polyline points='14 2 14 8 20 8'/></svg>Ver PDF</button>`:`<button class="btn btn-s btn-sm" disabled style="opacity:.4">Sin PDF</button>`}
           ${esGestor()?`<button class="btn btn-s btn-sm" onclick="abrirEditDoc(${d.id})" title="Editar"><svg viewBox="0 0 24 24" style="width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>`:''}
           ${esAdmin()?`<button class="btn btn-r btn-sm" onclick="delDoc(${d.id})">✕</button>`:''}
         </div></td>
@@ -1419,7 +1419,7 @@ function renderTodos(docs) {
           <td>${d.tipo}</td><td>${d.responsable}</td><td style="color:var(--gris-500)">${d.version}</td>
           <td>${bEstado(d.estado)}</td>
           <td><div style="display:flex;gap:4px">
-            ${d.url_archivo && !esLector()?`<button class="btn btn-s btn-sm" onclick="abrirPDF('${d.url_archivo}','${d.codigo} — ${d.nombre}')"><svg viewBox='0 0 24 24' style='width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2'><path d='M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z'/><polyline points='14 2 14 8 20 8'/></svg>Ver PDF</button>`:(d.url_archivo && esLector()?`<span class="badge b-obs" style="font-size:10px">Sin descarga</span>`:`<button class="btn btn-s btn-sm" disabled style="opacity:.4">PDF</button>`)}
+            ${d.url_archivo?`<button class="btn btn-s btn-sm" onclick="abrirPDF('${d.url_archivo}','${d.codigo} — ${d.nombre}')"><svg viewBox='0 0 24 24' style='width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2'><path d='M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z'/><polyline points='14 2 14 8 20 8'/></svg>Ver PDF</button>`:`<button class="btn btn-s btn-sm" disabled style="opacity:.4">Sin PDF</button>`}
             ${esGestor()?`<button class="btn btn-s btn-sm" onclick="abrirEditDoc(${d.id})" title="Editar"><svg viewBox="0 0 24 24" style="width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>`:''}
             ${esAdmin()?`<button class="btn btn-r btn-sm" onclick="delDoc(${d.id})">✕</button>`:''}
           </div></td>
