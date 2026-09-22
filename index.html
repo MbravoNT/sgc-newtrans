@@ -435,7 +435,7 @@ tbody tr:hover td{background:var(--gris-50)}
             <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
             Exportar RG-15
           </button>
-          <button class="btn btn-p" onclick="abrirReclamo()">
+          <button class="btn btn-p" onclick="abrirReclamoComoR14()">
             <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
             Registrar reclamo
           </button>
@@ -843,26 +843,113 @@ tbody tr:hover td{background:var(--gris-50)}
 </div>
 
 <div class="modal-overlay" id="modal-nc">
-  <div class="modal">
-    <div class="mh"><h2 id="modal-nc-title">Registrar hallazgo / NC</h2><button class="mclose" onclick="cerrarNC()"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+  <div class="modal" style="max-width:640px">
+    <div class="mh"><h2 id="modal-nc-title">Registro de Hallazgo — SGC-NEW-RG-14</h2><button class="mclose" onclick="cerrarNC()"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
     <div class="mb">
-      <div class="field"><label>Descripción del hallazgo *</label><input type="text" id="nc-titulo" placeholder="Ej: Temperatura fuera de rango vehículo SHJT-73" /></div>
+      <input type="hidden" id="nc-id" />
+      <div id="nc-correlativo-display" style="font-size:12px;font-weight:bold;color:var(--azul);background:var(--azul-claro,#EBF2FB);padding:6px 10px;border-radius:6px;margin-bottom:10px">Correlativo: se asignará al guardar</div>
+
+      <div style="font-size:11px;font-weight:bold;color:#fff;background:var(--azul);padding:5px 10px;border-radius:4px;margin:10px 0 8px">I. DETECCIÓN DEL HALLAZGO</div>
+      <div class="field"><label>Cliente (si aplica)</label><input type="text" id="nc-cliente" placeholder="Nombre del cliente / laboratorio" /></div>
+      <div class="field"><label>Título breve *</label><input type="text" id="nc-titulo" placeholder="Ej: Temperatura fuera de rango vehículo SHJT-73" /></div>
       <div class="fr">
-        <div class="field"><label>Tipo</label><select id="nc-tipo"><option>No conformidad</option><option>Observación</option><option>Oportunidad de mejora</option></select></div>
+        <div class="field"><label>Clasificación</label><select id="nc-tipo"><option>No conformidad</option><option>Observación</option><option>Oportunidad de mejora</option></select></div>
         <div class="field"><label>Severidad</label><select id="nc-sev"><option>Alta</option><option>Media</option><option>Baja</option></select></div>
       </div>
       <div class="fr">
+        <div class="field"><label>Fuente del hallazgo</label><select id="nc-origen">
+          <option>Auditoría interna</option><option>Auditoría externa</option><option>Revisión de gerencia</option>
+          <option>Inspección</option><option>Control proceso/servicio</option><option>Reclamo cliente</option>
+          <option>Desviación de indicadores</option><option>Incidente ambiental</option><option>Incidente seg. salud ocup.</option><option>Otro</option>
+        </select></div>
         <div class="field"><label>Cláusula ISO 9001</label><select id="nc-cl"><option value="">—</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10</option></select></div>
-        <div class="field"><label>Origen</label><select id="nc-origen"><option>Auditoría interna</option><option>Auditoría externa</option><option>Reclamo cliente</option><option>Operación diaria</option><option>Control de temperatura</option><option>Mantención</option><option>Otro</option></select></div>
       </div>
       <div class="fr">
-        <div class="field"><label>Responsable *</label><input type="text" id="nc-resp" placeholder="Nombre del responsable" /></div>
+        <div class="field"><label>Área *</label><input type="text" id="nc-area" placeholder="Área donde se detectó" /></div>
+        <div class="field"><label>Fecha detección *</label><input type="date" id="nc-fecha-deteccion" /></div>
+      </div>
+      <div class="field"><label>Descripción del hallazgo *</label><textarea id="nc-desc" placeholder="Contexto, evidencia, dónde se detectó…"></textarea></div>
+      <div class="fr">
+        <div class="field"><label>Emisor *</label><input type="text" id="nc-emisor" placeholder="Quién detecta / reporta" /></div>
+        <div class="field"><label>Cargo emisor</label><input type="text" id="nc-cargo-emisor" placeholder="Cargo" /></div>
+      </div>
+      <div class="fr">
+        <div class="field"><label>Responsable del área *</label><input type="text" id="nc-resp" placeholder="Nombre del responsable" /></div>
         <div class="field"><label>Fecha límite *</label><input type="date" id="nc-fecha" /></div>
       </div>
-      <div class="field"><label>Descripción detallada</label><textarea id="nc-desc" placeholder="Contexto, evidencia, dónde se detectó…"></textarea></div>
-      <div class="field"><label>Acción correctiva / inmediata</label><textarea id="nc-accion" placeholder="Acción propuesta…" style="min-height:55px"></textarea></div>
+
+      <div style="font-size:11px;font-weight:bold;color:#fff;background:var(--azul);padding:5px 10px;border-radius:4px;margin:14px 0 8px">II. TRATAMIENTO DEL HALLAZGO</div>
+      <div class="field"><label>Identificación de la acción</label><select id="nc-tipo-accion"><option>Corrección</option><option>Acción Correctiva</option><option>Acción Preventiva</option></select></div>
+      <div class="field"><label>Corrección inmediata (si aplica)</label><textarea id="nc-correccion" placeholder="Qué se hizo de inmediato…" style="min-height:55px"></textarea></div>
+
+      <div style="font-size:11px;font-weight:bold;color:#fff;background:var(--azul);padding:5px 10px;border-radius:4px;margin:14px 0 8px">III. INVESTIGACIÓN DE CAUSAS Y ACCIONES</div>
+      <div class="field"><label>Análisis de la causa</label><textarea id="nc-analisis-causa" placeholder="Causa raíz (5 porqués, Ishikawa, etc.)"></textarea></div>
+      <div class="field"><label>Descripción de la acción correctiva / preventiva</label><textarea id="nc-accion" placeholder="Acción propuesta…" style="min-height:55px"></textarea></div>
+
+      <div style="font-size:11px;font-weight:bold;color:#fff;background:var(--azul);padding:5px 10px;border-radius:4px;margin:14px 0 8px">EVIDENCIA (imágenes)</div>
+      <div class="field">
+        <label>Adjuntar imágenes de respaldo</label>
+        <input type="file" id="nc-evidencia" accept="image/*" multiple onchange="onEvidenciaSeleccionada(event)" />
+        <div id="nc-evidencia-preview" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"></div>
+      </div>
     </div>
     <div class="mf"><button class="btn btn-s" onclick="cerrarNC()">Cancelar</button><button class="btn btn-p" onclick="guardarNC()">Registrar</button></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-seg">
+  <div class="modal" style="max-width:640px">
+    <div class="mh"><h2>Seguimiento RG-15</h2><button class="mclose" onclick="cerrarSeg()"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+    <div class="mb">
+      <input type="hidden" id="seg-hallazgo-id" />
+      <div style="font-size:12px;font-weight:bold;color:var(--azul);background:var(--azul-claro,#EBF2FB);padding:6px 10px;border-radius:6px;margin-bottom:10px">Hallazgo: <span id="seg-correlativo">—</span></div>
+
+      <div style="font-size:11px;font-weight:bold;color:#fff;background:var(--azul);padding:5px 10px;border-radius:4px;margin:10px 0 8px">RESPONSABLES</div>
+      <div class="fr">
+        <div class="field"><label>Resp. hallazgo — Nombre</label><input type="text" id="seg-resp-hall-nombre" /></div>
+        <div class="field"><label>Cargo</label><input type="text" id="seg-resp-hall-cargo" /></div>
+      </div>
+      <div class="fr">
+        <div class="field"><label>Resp. específica — Nombre</label><input type="text" id="seg-resp-esp-nombre" /></div>
+        <div class="field"><label>Cargo</label><input type="text" id="seg-resp-esp-cargo" /></div>
+      </div>
+      <div class="fr">
+        <div class="field"><label>Resp. correctiva — Nombre</label><input type="text" id="seg-resp-cor-nombre" /></div>
+        <div class="field"><label>Cargo</label><input type="text" id="seg-resp-cor-cargo" /></div>
+      </div>
+      <div class="field"><label>Descripción acción correctiva (RG-15)</label><textarea id="seg-desc-correctiva" style="min-height:50px"></textarea></div>
+
+      <div style="font-size:11px;font-weight:bold;color:#fff;background:var(--azul);padding:5px 10px;border-radius:4px;margin:14px 0 8px">PLAN Y TÉRMINO</div>
+      <div class="fr">
+        <div class="field"><label>Fecha recepción</label><input type="date" id="seg-fecha-recepcion" /></div>
+        <div class="field"><label>Status plan</label><select id="seg-status-plan"><option value="P">Pendiente</option><option value="R">Resuelto</option></select></div>
+      </div>
+      <div class="fr">
+        <div class="field"><label>Fecha término programada</label><input type="date" id="seg-fecha-prog" /></div>
+        <div class="field"><label>Fecha término real</label><input type="date" id="seg-fecha-real" /></div>
+      </div>
+
+      <div style="font-size:11px;font-weight:bold;color:#fff;background:var(--azul);padding:5px 10px;border-radius:4px;margin:14px 0 8px">IV. CONTROL DE LA IMPLEMENTACIÓN Y EFICACIA</div>
+      <div class="fr">
+        <div class="field"><label>Nombre revisor</label><input type="text" id="seg-revisor-nombre" /></div>
+        <div class="field"><label>Fecha estimada revisión</label><input type="date" id="seg-fecha-revision-estimada" /></div>
+      </div>
+      <div class="fr">
+        <div class="field"><label>Fecha revisión (real)</label><input type="date" id="seg-fecha-seguimiento" /></div>
+        <div class="field"><label>Status seguimiento</label><select id="seg-status-seg"><option value="P">Pendiente</option><option value="R">Resuelto</option></select></div>
+      </div>
+      <div class="fr">
+        <div class="field"><label>¿Acción efectiva?</label><select id="seg-efectiva"><option value="">Sin evaluar</option><option value="true">Sí</option><option value="false">No</option></select></div>
+      </div>
+      <div class="field"><label>Justifique la respuesta</label><textarea id="seg-justificacion-eficacia" style="min-height:50px"></textarea></div>
+
+      <div style="font-size:11px;font-weight:bold;color:#fff;background:var(--azul);padding:5px 10px;border-radius:4px;margin:14px 0 8px">V. CIERRE DEL HALLAZGO</div>
+      <div class="fr">
+        <div class="field"><label>Cerrado por</label><input type="text" id="seg-cerrado-por" /></div>
+        <div class="field"><label>Fecha de cierre</label><input type="date" id="seg-fecha-cierre" /></div>
+      </div>
+    </div>
+    <div class="mf"><button class="btn btn-s" onclick="cerrarSeg()">Cancelar</button><button class="btn btn-p" onclick="guardarSeg()">Guardar seguimiento</button></div>
   </div>
 </div>
 
@@ -1468,6 +1555,7 @@ function renderNC() {
             <span>Resp: ${n.responsable||'—'}</span>
             <span>Vence: ${fFecha(n.fecha_limite)}</span>
             ${n.clausula?`<span>Cl. ${n.clausula}</span>`:''}
+            ${(n.evidencia_urls||[]).length?`<span>📎 ${n.evidencia_urls.length} imagen(es)</span>`:''}
           </div>
         </div>
         <div style="display:flex;flex-direction:column;gap:4px;flex-shrink:0">
@@ -1479,21 +1567,49 @@ function renderNC() {
     : '<div class="empty"><svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg><p>Sin hallazgos registrados</p></div>';
 }
 
+let ncEvidenciaNuevos = [];
+let ncEvidenciaExistentes = [];
+
 function abrirNC() {
   document.getElementById('nc-id').value = '';
-  document.getElementById('modal-nc-title').textContent = 'Registro de Hallazgo';
+  document.getElementById('modal-nc-title').textContent = 'Registro de Hallazgo — SGC-NEW-RG-14';
   document.getElementById('nc-correlativo-display').textContent = 'Correlativo: se asignará al guardar';
-  const campos = ['nc-cliente','nc-area','nc-emisor','nc-cargo-emisor','nc-resp',
+  const campos = ['nc-cliente','nc-titulo','nc-area','nc-emisor','nc-cargo-emisor','nc-resp',
     'nc-desc','nc-correccion','nc-analisis-causa','nc-accion'];
   campos.forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
   document.getElementById('nc-fecha-deteccion').value = new Date().toISOString().split('T')[0];
   document.getElementById('nc-fecha').value = '';
   document.getElementById('nc-sev').value = 'Media';
-  document.getElementById('nc-tipo').value = 'No Conformidad';
-  document.getElementById('nc-origen').value = 'Auditoría Interna';
+  document.getElementById('nc-tipo').value = 'No conformidad';
+  document.getElementById('nc-origen').value = 'Auditoría interna';
   document.getElementById('nc-cl').value = '';
   document.getElementById('nc-tipo-accion').value = 'Corrección';
+  document.getElementById('nc-evidencia').value = '';
+  ncEvidenciaNuevos = [];
+  ncEvidenciaExistentes = [];
+  renderNcEvidenciaPreview();
   document.getElementById('modal-nc').classList.add('open');
+}
+
+function onEvidenciaSeleccionada(ev) {
+  ncEvidenciaNuevos.push(...Array.from(ev.target.files || []));
+  ev.target.value = '';
+  renderNcEvidenciaPreview();
+}
+
+function quitarEvidenciaNueva(i) { ncEvidenciaNuevos.splice(i,1); renderNcEvidenciaPreview(); }
+function quitarEvidenciaExistente(i) { ncEvidenciaExistentes.splice(i,1); renderNcEvidenciaPreview(); }
+
+function renderNcEvidenciaPreview() {
+  const cont = document.getElementById('nc-evidencia-preview');
+  if (!cont) return;
+  const thumb = (src, onRemove) => `<div style="position:relative;width:64px;height:64px">
+    <img src="${src}" style="width:64px;height:64px;object-fit:cover;border-radius:6px;border:1px solid var(--gris-300)" />
+    <button type="button" onclick="${onRemove}" style="position:absolute;top:-6px;right:-6px;width:18px;height:18px;border-radius:50%;background:var(--rojo,#8B1F1F);color:#fff;border:none;font-size:11px;line-height:1;cursor:pointer">✕</button>
+  </div>`;
+  const existentes = ncEvidenciaExistentes.map((url,i) => thumb(url, `quitarEvidenciaExistente(${i})`));
+  const nuevos = ncEvidenciaNuevos.map((f,i) => thumb(URL.createObjectURL(f), `quitarEvidenciaNueva(${i})`));
+  cont.innerHTML = existentes.concat(nuevos).join('');
 }
 
 function editarNC(id) {
@@ -1518,9 +1634,25 @@ function editarNC(id) {
   document.getElementById('nc-correccion').value = n.correccion_inmediata||'';
   document.getElementById('nc-analisis-causa').value = n.analisis_causa||'';
   document.getElementById('nc-accion').value = n.accion||'';
+  document.getElementById('nc-evidencia').value = '';
+  ncEvidenciaNuevos = [];
+  ncEvidenciaExistentes = [...(n.evidencia_urls||[])];
+  renderNcEvidenciaPreview();
   document.getElementById('modal-nc').classList.add('open');
 }
 function cerrarNC() { document.getElementById('modal-nc').classList.remove('open'); }
+
+async function subirEvidencias(hallazgoId) {
+  const urls = [];
+  for (const file of ncEvidenciaNuevos) {
+    const path = `hallazgos/${hallazgoId}/${Date.now()}_${file.name}`;
+    const { error } = await sb.storage.from('sgc - docs').upload(path, file, { upsert: true });
+    if (error) { toast('Error al subir imagen: ' + error.message); continue; }
+    const { data: u } = sb.storage.from('sgc - docs').getPublicUrl(path);
+    if (u?.publicUrl) urls.push(u.publicUrl);
+  }
+  return [...ncEvidenciaExistentes, ...urls];
+}
 
 async function guardarNC() {
   const id   = document.getElementById('nc-id').value;
@@ -1529,12 +1661,14 @@ async function guardarNC() {
   const emisor = document.getElementById('nc-emisor').value.trim();
   const fecha = document.getElementById('nc-fecha').value;
   const fechaDet = document.getElementById('nc-fecha-deteccion').value;
-  if (!desc||!resp||!emisor||!fecha||!fechaDet) {
-    toast('Completa los campos obligatorios: descripción, emisor, responsable y fechas.');
+  const area = document.getElementById('nc-area').value.trim();
+  if (!desc||!resp||!emisor||!fecha||!fechaDet||!area) {
+    toast('Completa los campos obligatorios: área, descripción, emisor, responsable y fechas.');
     return;
   }
+  const titulo = document.getElementById('nc-titulo').value.trim() || desc.substring(0,100);
   const n = {
-    titulo: desc.substring(0,100),
+    titulo,
     tipo: document.getElementById('nc-tipo').value,
     severidad: document.getElementById('nc-sev').value,
     clausula: document.getElementById('nc-cl').value,
@@ -1546,7 +1680,7 @@ async function guardarNC() {
     estado: id ? undefined : 'Abierta',
     // Campos nuevos
     cliente: document.getElementById('nc-cliente').value.trim(),
-    area: document.getElementById('nc-area').value.trim(),
+    area: area,
     emisor: emisor,
     cargo_emisor: document.getElementById('nc-cargo-emisor').value.trim(),
     fecha_deteccion: fechaDet,
@@ -1556,13 +1690,21 @@ async function guardarNC() {
   };
   if (id) delete n.estado;
 
-  let error;
+  let error, savedId = id;
   if (id) {
     ({ error } = await sb.from('hallazgos').update(n).eq('id', id));
   } else {
-    ({ error } = await sb.from('hallazgos').insert([n]));
+    let data;
+    ({ data, error } = await sb.from('hallazgos').insert([n]).select());
+    savedId = data?.[0]?.id;
   }
   if (error) { toast('Error al guardar: ' + error.message); return; }
+
+  if (savedId && (ncEvidenciaNuevos.length > 0 || id)) {
+    const evidencia_urls = await subirEvidencias(savedId);
+    await sb.from('hallazgos').update({ evidencia_urls }).eq('id', savedId);
+  }
+
   await cargarDatos();
   cerrarNC();
   renderNC();
@@ -1677,6 +1819,10 @@ function abrirSeg(id) {
   document.getElementById('seg-status-seg').value       = n.status_seguimiento||'P';
   document.getElementById('seg-efectiva').value         = n.accion_efectiva===true?'true':n.accion_efectiva===false?'false':'';
   document.getElementById('seg-fecha-cierre').value     = n.fecha_cierre||'';
+  document.getElementById('seg-revisor-nombre').value          = n.revisor_nombre||'';
+  document.getElementById('seg-fecha-revision-estimada').value = n.fecha_revision_estimada||'';
+  document.getElementById('seg-justificacion-eficacia').value  = n.justificacion_eficacia||'';
+  document.getElementById('seg-cerrado-por').value              = n.cerrado_por||'';
   document.getElementById('modal-seg').classList.add('open');
 }
 
@@ -1702,6 +1848,10 @@ async function guardarSeg() {
     status_seguimiento:      document.getElementById('seg-status-seg').value,
     accion_efectiva:         efectiva===''?null:efectiva==='true',
     fecha_cierre:            document.getElementById('seg-fecha-cierre').value||null,
+    revisor_nombre:          document.getElementById('seg-revisor-nombre').value.trim(),
+    fecha_revision_estimada: document.getElementById('seg-fecha-revision-estimada').value||null,
+    justificacion_eficacia:  document.getElementById('seg-justificacion-eficacia').value.trim(),
+    cerrado_por:             document.getElementById('seg-cerrado-por').value.trim(),
   };
   const { error } = await sb.from('hallazgos').update(updates).eq('id', id);
   if (error) { toast('Error al guardar seguimiento: ' + error.message); return; }
@@ -1798,6 +1948,15 @@ function exportarRG15PDF() {
 
 function abrirReclamo() { document.getElementById('rec-fecha').value=new Date().toISOString().split('T')[0]; document.getElementById('modal-rec').classList.add('open'); }
 function cerrarRec() { document.getElementById('modal-rec').classList.remove('open'); }
+
+// Reclamos de cliente ahora se registran como un hallazgo R14 con origen "Reclamo cliente",
+// para que queden unificados en un solo registro y alimenten el R15 automáticamente.
+function abrirReclamoComoR14() {
+  abrirNC();
+  document.getElementById('modal-nc-title').textContent = 'Registrar reclamo — SGC-NEW-RG-14';
+  document.getElementById('nc-origen').value = 'Reclamo cliente';
+  setTimeout(() => document.getElementById('nc-cliente')?.focus(), 50);
+}
 
 async function guardarRec() {
   const c = document.getElementById('rec-cliente').value.trim();
@@ -2617,6 +2776,7 @@ function iniciarMonitorInactividad() {
 function exportarNCPDF(id) {
   const n = NCS.find(x => x.id === id);
   if (!n) return;
+  const fPdf = d => d ? new Date(d+'T00:00:00').toLocaleDateString('es-CL') : '—';
 
   const html = `
     <html><head><meta charset="UTF-8">
@@ -2678,6 +2838,30 @@ function exportarNCPDF(id) {
     <div class="seccion">III. INVESTIGACIÓN DE CAUSAS Y ACCIONES</div>
     <div class="campo"><div class="campo-label">Análisis de causa</div><div class="campo-textarea">${n.analisis_causa||'—'}</div></div>
     <div class="campo"><div class="campo-label">Descripción de la acción correctiva/preventiva</div><div class="campo-textarea">${n.accion||'—'}</div></div>
+    <div class="grid2">
+      <div class="campo"><div class="campo-label">Responsable acción correctiva</div><div class="campo-valor">${n.resp_correctiva_nombre||'—'}${n.resp_correctiva_cargo?` (${n.resp_correctiva_cargo})`:''}</div></div>
+      <div class="campo"><div class="campo-label">Fecha término (prog. / real)</div><div class="campo-valor">${fPdf(n.fecha_termino_programado)} / ${fPdf(n.fecha_termino_real)}</div></div>
+    </div>
+
+    <div class="seccion">IV. CONTROL DE LA IMPLEMENTACIÓN Y EFICACIA</div>
+    <div class="grid2">
+      <div class="campo"><div class="campo-label">Nombre revisor</div><div class="campo-valor">${n.revisor_nombre||'—'}</div></div>
+      <div class="campo"><div class="campo-label">Fecha revisión (est. / real)</div><div class="campo-valor">${fPdf(n.fecha_revision_estimada)} / ${fPdf(n.fecha_seguimiento)}</div></div>
+    </div>
+    <div class="campo"><div class="campo-label">¿Acción efectiva?</div><div class="campo-valor">${n.accion_efectiva===true?'Sí':n.accion_efectiva===false?'No':'Sin evaluar'}</div></div>
+    <div class="campo"><div class="campo-label">Justificación</div><div class="campo-textarea">${n.justificacion_eficacia||'—'}</div></div>
+
+    <div class="seccion">V. CIERRE DEL HALLAZGO</div>
+    <div class="grid2">
+      <div class="campo"><div class="campo-label">Cerrado por</div><div class="campo-valor">${n.cerrado_por||'—'}</div></div>
+      <div class="campo"><div class="campo-label">Fecha de cierre</div><div class="campo-valor">${fPdf(n.fecha_cierre)}</div></div>
+    </div>
+
+    ${(n.evidencia_urls||[]).length ? `
+    <div class="seccion">EVIDENCIA</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
+      ${n.evidencia_urls.map(u => `<img src="${u}" style="width:110px;height:110px;object-fit:cover;border:1px solid #CBD0D8;border-radius:4px" />`).join('')}
+    </div>` : ''}
 
     <div class="firmas">
       <div class="firma">Emisor<br><br>${n.emisor||'_______________'}</div>
