@@ -504,10 +504,20 @@ tbody tr:hover td{background:var(--gris-50)}
         </div>
       </div>
 
-      <!-- Lista de reclamos adicionales (no hallazgos) -->
-      <div class="card" style="margin-top:14px">
-        <div class="card-title"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>Reclamos directos de clientes</div>
-        <div id="rec-lista"></div>
+      <!-- Gráficos de hallazgos -->
+      <div class="g4" style="grid-template-columns:repeat(3,1fr);margin-top:14px">
+        <div class="card">
+          <div class="card-title">Hallazgos por área</div>
+          <div id="graf-area"></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Hallazgos por ciudad</div>
+          <div id="graf-ciudad"></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Hallazgos por tipo</div>
+          <div id="graf-tipo"></div>
+        </div>
       </div>
     </div>
 
@@ -866,6 +876,9 @@ tbody tr:hover td{background:var(--gris-50)}
       </div>
       <div class="fr">
         <div class="field"><label>Área *</label><input type="text" id="nc-area" placeholder="Área donde se detectó" /></div>
+        <div class="field"><label>Ciudad</label><input type="text" id="nc-ciudad" placeholder="Ciudad" /></div>
+      </div>
+      <div class="fr">
         <div class="field"><label>Fecha detección *</label><input type="date" id="nc-fecha-deteccion" /></div>
       </div>
       <div class="field"><label>Descripción del hallazgo *</label><textarea id="nc-desc" placeholder="Contexto, evidencia, dónde se detectó…"></textarea></div>
@@ -1574,7 +1587,7 @@ function abrirNC() {
   document.getElementById('nc-id').value = '';
   document.getElementById('modal-nc-title').textContent = 'Registro de Hallazgo — SGC-NEW-RG-14';
   document.getElementById('nc-correlativo-display').textContent = 'Correlativo: se asignará al guardar';
-  const campos = ['nc-cliente','nc-titulo','nc-area','nc-emisor','nc-cargo-emisor','nc-resp',
+  const campos = ['nc-cliente','nc-titulo','nc-area','nc-ciudad','nc-emisor','nc-cargo-emisor','nc-resp',
     'nc-desc','nc-correccion','nc-analisis-causa','nc-accion'];
   campos.forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
   document.getElementById('nc-fecha-deteccion').value = new Date().toISOString().split('T')[0];
@@ -1620,6 +1633,7 @@ function editarNC(id) {
   document.getElementById('nc-correlativo-display').textContent = `Correlativo: ${n.correlativo||'—'}`;
   document.getElementById('nc-cliente').value = n.cliente||'';
   document.getElementById('nc-area').value = n.area||'';
+  document.getElementById('nc-ciudad').value = n.ciudad||'';
   document.getElementById('nc-emisor').value = n.emisor||'';
   document.getElementById('nc-cargo-emisor').value = n.cargo_emisor||'';
   document.getElementById('nc-resp').value = n.responsable||'';
@@ -1681,6 +1695,7 @@ async function guardarNC() {
     // Campos nuevos
     cliente: document.getElementById('nc-cliente').value.trim(),
     area: area,
+    ciudad: document.getElementById('nc-ciudad').value.trim(),
     emisor: emisor,
     cargo_emisor: document.getElementById('nc-cargo-emisor').value.trim(),
     fecha_deteccion: fechaDet,
@@ -1797,6 +1812,30 @@ function renderRec() {
         </div></td>
       </tr>`).join('')
     : '<tr><td colspan="13" style="text-align:center;padding:28px;color:var(--gris-500)">Sin hallazgos registrados aún.</td></tr>';
+
+  renderGraficoBarras('graf-area', NCS, n => n.area);
+  renderGraficoBarras('graf-ciudad', NCS, n => n.ciudad);
+  renderGraficoBarras('graf-tipo', NCS, n => n.tipo);
+}
+
+// Gráfico de barras horizontal simple (sin librerías): cuenta ocurrencias de campo(n) y dibuja barras con CSS.
+function renderGraficoBarras(contId, data, campo) {
+  const cont = document.getElementById(contId);
+  if (!cont) return;
+  const conteo = {};
+  data.forEach(n => { const k = (campo(n)||'').trim() || 'Sin dato'; conteo[k] = (conteo[k]||0) + 1; });
+  const entradas = Object.entries(conteo).sort((a,b) => b[1]-a[1]);
+  if (!entradas.length) { cont.innerHTML = '<div class="empty" style="padding:20px 0"><p>Sin datos aún</p></div>'; return; }
+  const max = entradas[0][1];
+  cont.innerHTML = entradas.map(([k,v]) => `
+    <div style="margin-bottom:8px">
+      <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--gris-700);margin-bottom:2px">
+        <span>${k}</span><span><strong>${v}</strong></span>
+      </div>
+      <div style="background:var(--gris-200,#EEF0F2);border-radius:4px;height:8px">
+        <div style="background:var(--azul-med);width:${(v/max*100).toFixed(0)}%;height:8px;border-radius:4px"></div>
+      </div>
+    </div>`).join('');
 }
 
 function abrirSeg(id) {
