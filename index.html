@@ -1871,6 +1871,7 @@ function exportarRG15PDF() {
       <td>${n.fecha_deteccion ? new Date(n.fecha_deteccion+'T00:00:00').toLocaleDateString('es-CL') : '—'}</td>
       <td>${n.fecha_recepcion ? new Date(n.fecha_recepcion+'T00:00:00').toLocaleDateString('es-CL') : '—'}</td>
       <td>${n.cliente||n.origen||'—'}</td>
+      <td>${(n.descripcion||'—').substring(0,100)}</td>
       <td style="text-align:center">${n.tipo_accion==='Acción Correctiva'?'X':''}</td>
       <td style="text-align:center">${n.tipo_accion==='Acción Preventiva'?'X':''}</td>
       <td>${n.resp_hallazgo_nombre||n.responsable||'—'}</td>
@@ -1910,6 +1911,7 @@ function exportarRG15PDF() {
         <th rowspan="2">Fecha Hallazgo</th>
         <th rowspan="2">Fecha Recepción</th>
         <th rowspan="2">Origen</th>
+        <th rowspan="2">Descripción Hallazgo</th>
         <th colspan="2">Tipo Acción</th>
         <th colspan="2">Resp. Hallazgo</th>
         <th colspan="2">Resp. Específica</th>
