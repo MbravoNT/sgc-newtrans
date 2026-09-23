@@ -897,7 +897,12 @@ tbody tr:hover td{background:var(--gris-50)}
           <option>Inspección</option><option>Control proceso/servicio</option><option>Reclamo cliente</option>
           <option>Desviación de indicadores</option><option>Incidente ambiental</option><option>Incidente seg. salud ocup.</option><option>Otro</option>
         </select></div>
-        <div class="field"><label>Cláusula ISO 9001</label><select id="nc-cl"><option value="">—</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10</option></select></div>
+        <div class="field"><label>Motivo del Hallazgo</label><select id="nc-cl">
+          <option value="">—</option>
+          <option>Deterioro</option><option>Entrega Errónea</option><option>Error Operacional</option>
+          <option>Plazo de Entrega</option><option>Diferencia de Unidades</option><option>Bulto Ciego</option>
+          <option>Error de In House</option><option>Otros</option>
+        </select></div>
       </div>
       <div class="fr">
         <div class="field"><label>Área *</label><input type="text" id="nc-area" placeholder="Área donde se detectó" /></div>
@@ -923,6 +928,33 @@ tbody tr:hover td{background:var(--gris-50)}
       <div style="font-size:11px;font-weight:bold;color:#fff;background:var(--azul);padding:5px 10px;border-radius:4px;margin:14px 0 8px">III. INVESTIGACIÓN DE CAUSAS Y ACCIONES</div>
       <div class="field"><label>Análisis de la causa</label><textarea id="nc-analisis-causa" placeholder="Causa raíz (5 porqués, Ishikawa, etc.)"></textarea></div>
       <div class="field"><label>Descripción de la acción correctiva / preventiva</label><textarea id="nc-accion" placeholder="Acción propuesta…" style="min-height:55px"></textarea></div>
+      <div class="fr">
+        <div class="field"><label>Responsable acción — Nombre</label><input type="text" id="nc-resp-cor-nombre" /></div>
+        <div class="field"><label>Cargo</label><input type="text" id="nc-resp-cor-cargo" /></div>
+      </div>
+      <div class="fr">
+        <div class="field"><label>Fecha término programada</label><input type="date" id="nc-fecha-prog" /></div>
+        <div class="field"><label>Fecha término real</label><input type="date" id="nc-fecha-real" /></div>
+      </div>
+      <div class="field"><label>Status plan</label><select id="nc-status-plan"><option value="P">Pendiente</option><option value="R">Resuelto</option></select></div>
+
+      <div style="font-size:11px;font-weight:bold;color:#fff;background:var(--azul);padding:5px 10px;border-radius:4px;margin:14px 0 8px">IV. CONTROL DE LA IMPLEMENTACIÓN Y EFICACIA</div>
+      <div class="fr">
+        <div class="field"><label>Nombre revisor</label><input type="text" id="nc-revisor-nombre" /></div>
+        <div class="field"><label>Fecha estimada revisión</label><input type="date" id="nc-fecha-revision-estimada" /></div>
+      </div>
+      <div class="fr">
+        <div class="field"><label>Fecha revisión (real)</label><input type="date" id="nc-fecha-seguimiento" /></div>
+        <div class="field"><label>Status seguimiento</label><select id="nc-status-seg"><option value="P">Pendiente</option><option value="R">Resuelto</option></select></div>
+      </div>
+      <div class="field"><label>¿Acción efectiva?</label><select id="nc-efectiva"><option value="">Sin evaluar</option><option value="true">Sí</option><option value="false">No</option></select></div>
+      <div class="field"><label>Justifique la respuesta</label><textarea id="nc-justificacion-eficacia" style="min-height:50px"></textarea></div>
+
+      <div style="font-size:11px;font-weight:bold;color:#fff;background:var(--azul);padding:5px 10px;border-radius:4px;margin:14px 0 8px">V. CIERRE DEL HALLAZGO</div>
+      <div class="fr">
+        <div class="field"><label>Cerrado por</label><input type="text" id="nc-cerrado-por" /></div>
+        <div class="field"><label>Fecha de cierre</label><input type="date" id="nc-fecha-cierre" /></div>
+      </div>
 
       <div style="font-size:11px;font-weight:bold;color:#fff;background:var(--azul);padding:5px 10px;border-radius:4px;margin:14px 0 8px">EVIDENCIA (imágenes)</div>
       <div class="field">
@@ -1634,7 +1666,7 @@ function renderNC() {
             <span>Área: ${n.area||'—'}</span>
             <span>Resp: ${n.responsable||'—'}</span>
             <span>Vence: ${fFecha(n.fecha_limite)}</span>
-            ${n.clausula?`<span>Cl. ${n.clausula}</span>`:''}
+            ${n.clausula?`<span>Motivo: ${n.clausula}</span>`:''}
             ${(n.evidencia_urls||[]).length?`<span>📎 ${n.evidencia_urls.length} imagen(es)</span>`:''}
           </div>
         </div>
@@ -1655,7 +1687,10 @@ function abrirNC() {
   document.getElementById('modal-nc-title').textContent = 'Registro de Hallazgo — SGC-NEW-RG-14';
   document.getElementById('nc-correlativo-display').textContent = 'Correlativo: se asignará al guardar';
   const campos = ['nc-cliente','nc-titulo','nc-area','nc-ciudad','nc-emisor','nc-cargo-emisor','nc-resp',
-    'nc-desc','nc-correccion','nc-analisis-causa','nc-accion'];
+    'nc-desc','nc-correccion','nc-analisis-causa','nc-accion',
+    'nc-resp-cor-nombre','nc-resp-cor-cargo','nc-fecha-prog','nc-fecha-real',
+    'nc-revisor-nombre','nc-fecha-revision-estimada','nc-fecha-seguimiento','nc-justificacion-eficacia',
+    'nc-cerrado-por','nc-fecha-cierre'];
   campos.forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
   document.getElementById('nc-fecha-deteccion').value = new Date().toISOString().split('T')[0];
   document.getElementById('nc-fecha').value = '';
@@ -1664,6 +1699,9 @@ function abrirNC() {
   document.getElementById('nc-origen').value = 'Auditoría interna';
   document.getElementById('nc-cl').value = '';
   document.getElementById('nc-tipo-accion').value = 'Corrección';
+  document.getElementById('nc-status-plan').value = 'P';
+  document.getElementById('nc-status-seg').value = 'P';
+  document.getElementById('nc-efectiva').value = '';
   document.getElementById('nc-evidencia').value = '';
   ncEvidenciaNuevos = [];
   ncEvidenciaExistentes = [];
@@ -1715,6 +1753,19 @@ function editarNC(id) {
   document.getElementById('nc-correccion').value = n.correccion_inmediata||'';
   document.getElementById('nc-analisis-causa').value = n.analisis_causa||'';
   document.getElementById('nc-accion').value = n.accion||'';
+  document.getElementById('nc-resp-cor-nombre').value = n.resp_correctiva_nombre||'';
+  document.getElementById('nc-resp-cor-cargo').value  = n.resp_correctiva_cargo||'';
+  document.getElementById('nc-fecha-prog').value = n.fecha_termino_programado||'';
+  document.getElementById('nc-fecha-real').value = n.fecha_termino_real||'';
+  document.getElementById('nc-status-plan').value = n.status_plan||'P';
+  document.getElementById('nc-revisor-nombre').value = n.revisor_nombre||'';
+  document.getElementById('nc-fecha-revision-estimada').value = n.fecha_revision_estimada||'';
+  document.getElementById('nc-fecha-seguimiento').value = n.fecha_seguimiento||'';
+  document.getElementById('nc-status-seg').value = n.status_seguimiento||'P';
+  document.getElementById('nc-efectiva').value = n.accion_efectiva===true?'true':n.accion_efectiva===false?'false':'';
+  document.getElementById('nc-justificacion-eficacia').value = n.justificacion_eficacia||'';
+  document.getElementById('nc-cerrado-por').value = n.cerrado_por||'';
+  document.getElementById('nc-fecha-cierre').value = n.fecha_cierre||'';
   document.getElementById('nc-evidencia').value = '';
   ncEvidenciaNuevos = [];
   ncEvidenciaExistentes = [...(n.evidencia_urls||[])];
@@ -1769,6 +1820,19 @@ async function guardarNC() {
     tipo_accion: document.getElementById('nc-tipo-accion').value,
     correccion_inmediata: document.getElementById('nc-correccion').value.trim(),
     analisis_causa: document.getElementById('nc-analisis-causa').value.trim(),
+    resp_correctiva_nombre: document.getElementById('nc-resp-cor-nombre').value.trim(),
+    resp_correctiva_cargo: document.getElementById('nc-resp-cor-cargo').value.trim(),
+    fecha_termino_programado: document.getElementById('nc-fecha-prog').value || null,
+    fecha_termino_real: document.getElementById('nc-fecha-real').value || null,
+    status_plan: document.getElementById('nc-status-plan').value,
+    revisor_nombre: document.getElementById('nc-revisor-nombre').value.trim(),
+    fecha_revision_estimada: document.getElementById('nc-fecha-revision-estimada').value || null,
+    fecha_seguimiento: document.getElementById('nc-fecha-seguimiento').value || null,
+    status_seguimiento: document.getElementById('nc-status-seg').value,
+    accion_efectiva: document.getElementById('nc-efectiva').value === '' ? null : document.getElementById('nc-efectiva').value === 'true',
+    justificacion_eficacia: document.getElementById('nc-justificacion-eficacia').value.trim(),
+    cerrado_por: document.getElementById('nc-cerrado-por').value.trim(),
+    fecha_cierre: document.getElementById('nc-fecha-cierre').value || null,
   };
   if (id) delete n.estado;
 
@@ -2926,7 +2990,7 @@ function exportarNCPDF(id) {
     </div>
     <div class="grid2">
       <div class="campo"><div class="campo-label">Fuente del hallazgo</div><div class="campo-valor">${n.origen||'—'}</div></div>
-      <div class="campo"><div class="campo-label">Cláusula ISO 9001</div><div class="campo-valor">${n.clausula||'—'}</div></div>
+      <div class="campo"><div class="campo-label">Motivo del Hallazgo</div><div class="campo-valor">${n.clausula||'—'}</div></div>
     </div>
     <div class="campo"><div class="campo-label">Área</div><div class="campo-valor">${n.area||'—'}</div></div>
     <div class="campo"><div class="campo-label">Descripción del hallazgo</div><div class="campo-textarea">${n.descripcion||'—'}</div></div>
