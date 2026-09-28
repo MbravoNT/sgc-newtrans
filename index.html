@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SGC Newtrans — Sistema de Gestión de Calidad</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js" defer></script>
 <style>
 :root {
   --azul:        #1A3A5C;
@@ -98,6 +99,11 @@ input,select,textarea{font-family:inherit;font-size:14px}
 .card-title{font-size:13px;font-weight:700;color:var(--gris-900);margin-bottom:14px;display:flex;align-items:center;gap:8px}
 .card-title svg{width:15px;height:15px;stroke:var(--gris-500);fill:none;stroke-width:1.8}
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.cm-row{display:grid;grid-template-columns:120px 1fr 78px;align-items:center;gap:8px;padding:4px 6px;border-radius:6px;cursor:pointer;font-size:12px}
+.cm-row:hover,.cm-row.sel{background:var(--gris-100)}
+.cm-bar{display:flex;height:14px;border-radius:4px;overflow:hidden;background:var(--gris-100)}
+.cm-bar i{display:block}
+.cm-pct{text-align:right;color:var(--gris-700);font-variant-numeric:tabular-nums}
 .g3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
 .g4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
 .kpi{background:var(--blanco);border:1px solid var(--gris-300);border-radius:var(--radio-md);padding:14px 16px}
@@ -633,6 +639,28 @@ tbody tr:hover td{background:var(--gris-50)}
           <div class="kpi-val" style="color:var(--azul);font-size:16px;padding-top:4px" id="k-cap-ultimo">—</div>
           <div class="kpi-sub" style="color:var(--gris-500)" id="k-cap-ultimo-nombre">—</div>
         </div>
+      </div>
+
+      <!-- Cumplimiento Aula Virtual (exportación Moodle) -->
+      <div class="card" style="margin-bottom:14px">
+        <div class="card-title">
+          <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+          Estado de capacitación por ciudad y área
+          <select id="cm-curso" onchange="CM_SEL='';renderMoodle()" style="margin-left:auto;padding:5px 8px;border:1px solid var(--gris-300);border-radius:var(--radio-sm);font-size:12px"></select>
+          <button class="btn btn-s btn-sm" id="cm-btn-subir" onclick="document.getElementById('cm-file').click()">Cargar calificaciones Moodle</button>
+          <input type="file" id="cm-file" accept=".xls,.xlsx,.csv" style="display:none" onchange="cargarMoodle(this)" />
+        </div>
+        <div id="cm-resumen" style="font-size:12px;color:var(--gris-700);margin-bottom:12px"></div>
+        <div class="g2">
+          <div><div style="font-size:12px;font-weight:700;margin-bottom:6px">Por ciudad</div><div id="cm-ciudades"></div></div>
+          <div><div style="font-size:12px;font-weight:700;margin-bottom:6px">Por área</div><div id="cm-areas"></div></div>
+        </div>
+        <div style="font-size:11px;color:var(--gris-500);margin-top:8px">
+          <span style="display:inline-block;width:10px;height:10px;background:var(--verde);border-radius:2px;vertical-align:middle"></span> Aprobado
+          <span style="display:inline-block;width:10px;height:10px;background:#C0392B;border-radius:2px;vertical-align:middle;margin-left:10px"></span> Pendiente (sin nota)
+          · Clic en una barra para ver sus pendientes
+        </div>
+        <div id="cm-pend" style="margin-top:12px"></div>
       </div>
 
       <!-- Filtros -->
@@ -1533,6 +1561,9 @@ async function cargarDatos() {
     if (provRes.data) PROVS = provRes.data;
     if (cursosRes.data) CURSOS = cursosRes.data;
     if (capRes.data)    CAP_REGS = capRes.data;
+    // ponytail: PostgREST devuelve máx. 1000 filas; si se suben muchos cursos, filtrar por curso en la consulta
+    const cm = await sb.from('capacitacion_moodle').select('id,curso,nombre,grupo,nota').order('id');
+    if (cm.data) MOODLE = cm.data;
   } catch(e) {
     console.error('Error cargando datos:', e);
     toast('Error al cargar datos desde la base de datos.');
@@ -2812,7 +2843,87 @@ async function guardarEditDoc() {
 // ═══════════════════════════════════════
 // CAPACITACIONES
 // ═══════════════════════════════════════
+let MOODLE = [], CM_SEL = '';
+
+// Moodle exporta la ñ como "n" minúscula entre mayúsculas (MInO, VInA)
+const fixEnie = t => String(t ?? '').trim().replace(/([A-ZÁÉÍÓÚ])n(?=[A-ZÁÉÍÓÚ]|\b)/g, '$1Ñ').replace(/\bn(?=[A-ZÁÉÍÓÚ])/g, 'Ñ');
+const tituloCase = t => t.toLowerCase().replace(/(^|[\s.(-])\p{L}/gu, m => m.toUpperCase());
+const cmEsCiudad = g => /^OP\.?\s/i.test(g + ' ');
+const cmNombreGrupo = g => tituloCase(g.replace(/^OP\.\s*/i, ''));
+
+async function cargarMoodle(input) {
+  const file = input.files[0]; input.value = '';
+  if (!file) return;
+  if (!window.XLSX) return toast('El lector de Excel aún está cargando, intenta de nuevo.');
+  const curso = prompt('Nombre del curso:', file.name.replace(/\.[^.]+$/, '').replace(/_?Calificaciones/i, '').replace(/_/g, ' ').trim());
+  if (!curso) return;
+  const wb = XLSX.read(await file.arrayBuffer());
+  const filas = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { defval: null });
+  const col = (f, re) => Object.keys(f).find(k => re.test(k));
+  const f0 = filas[0] || {};
+  const cNom = col(f0, /^nombre$/i), cApe = col(f0, /^apellido/i), cTot = col(f0, /^total del curso/i), cGrp = col(f0, /^ciudad$/i);
+  if (!cNom || !cTot || !cGrp) return toast('El archivo no tiene las columnas Nombre, Total del curso y ciudad.');
+  const rows = filas.filter(f => f[cNom] && f[cGrp]).map(f => {
+    const n = parseFloat(String(f[cTot]).replace(',', '.'));
+    return {
+      curso,
+      nombre: fixEnie(`${f[cNom]} ${cApe ? f[cApe] || '' : ''}`),
+      grupo: fixEnie(f[cGrp]).toUpperCase().replace(/^OP\.\s*/, 'OP. '),
+      nota: isNaN(n) ? null : n
+    };
+  });
+  if (!rows.length) return toast('No se encontraron participantes en el archivo.');
+  // Inserta primero y luego borra la carga anterior del curso: si falla, no se pierde lo existente
+  const { data, error } = await sb.from('capacitacion_moodle').insert(rows).select('id');
+  if (error) return toast('Error al guardar: ' + error.message);
+  const minId = Math.min(...data.map(r => r.id));
+  await sb.from('capacitacion_moodle').delete().eq('curso', curso).lt('id', minId);
+  MOODLE = MOODLE.filter(r => r.curso !== curso).concat(rows.map((r, i) => ({ ...r, id: data[i].id })));
+  CM_SEL = '';
+  renderMoodle(curso);
+  toast(`${rows.length} participantes cargados para "${curso}".`);
+}
+
+function renderMoodle(cursoForzado) {
+  const sel = document.getElementById('cm-curso');
+  if (!sel) return;
+  document.getElementById('cm-btn-subir').style.display = esGestor() ? '' : 'none';
+  const cursos = [...new Set(MOODLE.map(r => r.curso))].sort();
+  const actual = cursoForzado || sel.value || cursos[0] || '';
+  sel.innerHTML = cursos.length ? cursos.map(c => `<option ${c === actual ? 'selected' : ''}>${c}</option>`).join('') : '<option value="">Sin cargas</option>';
+  const regs = MOODLE.filter(r => r.curso === actual);
+  const resumen = document.getElementById('cm-resumen');
+  if (!regs.length) {
+    resumen.textContent = 'Carga la exportación de calificaciones del Aula Virtual (Moodle) para ver el estado por ciudad y área.';
+    ['cm-ciudades', 'cm-areas', 'cm-pend'].forEach(id => document.getElementById(id).innerHTML = '');
+    return;
+  }
+  const grupos = {};
+  regs.forEach(r => { const g = grupos[r.grupo] ||= { tot: 0, ok: 0 }; g.tot++; if (r.nota != null) g.ok++; });
+  const ok = regs.filter(r => r.nota != null).length;
+  resumen.innerHTML = `<strong>${Math.round(100 * ok / regs.length)}% de cumplimiento</strong> · ${ok} aprobados de ${regs.length} · <strong style="color:#C0392B">${regs.length - ok} pendientes</strong>`;
+  const barras = esCiudad => Object.entries(grupos).filter(([g]) => cmEsCiudad(g) === esCiudad)
+    .sort((a, b) => a[1].ok / a[1].tot - b[1].ok / b[1].tot || b[1].tot - a[1].tot)
+    .map(([g, v]) => {
+      const pct = Math.round(100 * v.ok / v.tot);
+      return `<div class="cm-row ${CM_SEL === g ? 'sel' : ''}" onclick="CM_SEL=CM_SEL==='${g}'?'':'${g}';renderMoodle()" title="${v.ok} aprobados · ${v.tot - v.ok} pendientes">
+        <span>${cmNombreGrupo(g)}</span>
+        <div class="cm-bar"><i style="width:${pct}%;background:var(--verde)"></i><i style="width:${100 - pct}%;background:#C0392B"></i></div>
+        <span class="cm-pct">${v.ok}/${v.tot} · ${pct}%</span>
+      </div>`;
+    }).join('') || '<div style="font-size:12px;color:var(--gris-500)">—</div>';
+  document.getElementById('cm-ciudades').innerHTML = barras(true);
+  document.getElementById('cm-areas').innerHTML = barras(false);
+  const pend = regs.filter(r => r.nota == null && (!CM_SEL || r.grupo === CM_SEL)).sort((a, b) => a.grupo.localeCompare(b.grupo) || a.nombre.localeCompare(b.nombre));
+  document.getElementById('cm-pend').innerHTML = `
+    <div style="font-size:12px;font-weight:700;margin-bottom:6px">Pendientes ${CM_SEL ? '— ' + cmNombreGrupo(CM_SEL) : '(todos)'}: ${pend.length}</div>
+    ${pend.length ? `<div class="tw" style="max-height:260px;overflow:auto"><table><thead><tr><th>Participante</th><th>Ciudad / Área</th></tr></thead><tbody>
+      ${pend.map(r => `<tr><td>${tituloCase(r.nombre)}</td><td>${cmNombreGrupo(r.grupo)}</td></tr>`).join('')}
+    </tbody></table></div>` : '<div style="font-size:12px;color:var(--verde)">Sin pendientes ✓</div>'}`;
+}
+
 function renderCapacitaciones() {
+  renderMoodle();
   // KPI
   const elCursos = document.getElementById('k-cap-cursos');
   const elTotal  = document.getElementById('k-cap-total');
