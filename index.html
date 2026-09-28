@@ -72,6 +72,11 @@ input,select,textarea{font-family:inherit;font-size:14px}
 .user-menu{display:flex;align-items:center;gap:8px;cursor:pointer;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:20px;padding:4px 12px 4px 4px}
 .user-avatar{width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff}
 .user-name{font-size:12px;color:rgba(255,255,255,.9);font-weight:500}
+.user-wrap{position:relative}
+.user-dd{display:none;position:absolute;right:0;top:calc(100% + 6px);background:#fff;border:1px solid var(--gris-200,#e5e7eb);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.15);min-width:190px;padding:4px;z-index:250}
+.user-dd.open{display:block}
+.user-dd button{display:block;width:100%;text-align:left;background:none;border:none;padding:9px 12px;font-size:13px;border-radius:7px;cursor:pointer;color:var(--gris-700,#374151)}
+.user-dd button:hover{background:var(--gris-100,#f3f4f6)}
 #app{display:none}
 #sidebar{position:fixed;left:0;top:var(--topbar-h);bottom:0;width:var(--sidebar-w);background:var(--blanco);border-right:1px solid var(--gris-300);overflow-y:auto;z-index:50;padding:12px 0}
 #main{margin-left:var(--sidebar-w);margin-top:var(--topbar-h);padding:24px;min-height:calc(100vh - var(--topbar-h))}
@@ -243,6 +248,19 @@ tbody tr:hover td{background:var(--gris-50)}
   </div>
 </div>
 
+<div class="modal-overlay" id="modal-cambiar-clave">
+  <div class="modal" style="max-width:380px">
+    <div class="mh"><h2>Cambiar mi contraseña</h2><button class="mclose" onclick="cerrarCambiarClave()"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+    <div class="mb">
+      <div class="field"><label>Contraseña actual</label><input type="password" id="cc-actual" autocomplete="current-password" /></div>
+      <div class="field"><label>Nueva contraseña</label><input type="password" id="cc-p1" placeholder="Mínimo 8 caracteres, letras y números" autocomplete="new-password" /></div>
+      <div class="field"><label>Repite la nueva contraseña</label><input type="password" id="cc-p2" autocomplete="new-password" /></div>
+      <div id="cc-msg" style="font-size:12px;margin-top:6px"></div>
+    </div>
+    <div class="mf"><button class="btn btn-s" onclick="cerrarCambiarClave()">Cancelar</button><button class="btn btn-p" id="cc-btn" onclick="cambiarMiClave()">Guardar contraseña</button></div>
+  </div>
+</div>
+
 <div id="app">
   <div id="topbar">
     <div class="topbar-logo">
@@ -261,10 +279,16 @@ tbody tr:hover td{background:var(--gris-50)}
     <div class="topbar-right">
       <div class="cert-pill"><svg viewBox="0 0 24 24"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>ISO 9001:2015</div>
       <div class="cert-pill"><svg viewBox="0 0 24 24"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>NT 147</div>
-      <div class="user-menu" onclick="doLogout()">
+      <div class="user-wrap">
+      <div class="user-menu" onclick="toggleUserMenu(event)">
         <div class="user-avatar" id="uinit">--</div>
         <div class="user-name" id="uname">—</div>
         <span id="rol-badge" style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px;border:1px solid rgba(255,255,255,0.2)">—</span>
+      </div>
+      <div class="user-dd" id="user-dd">
+        <button onclick="abrirCambiarClave()">🔑 Cambiar mi contraseña</button>
+        <button onclick="doLogout()">⎋ Cerrar sesión</button>
+      </div>
       </div>
     </div>
   </div>
@@ -1412,7 +1436,50 @@ async function guardarNuevaClave() {
   iniciarApp();
 }
 
+function toggleUserMenu(ev) {
+  ev.stopPropagation();
+  document.getElementById('user-dd').classList.toggle('open');
+}
+document.addEventListener('click', () => document.getElementById('user-dd')?.classList.remove('open'));
+
+function abrirCambiarClave() {
+  document.getElementById('user-dd').classList.remove('open');
+  ['cc-actual','cc-p1','cc-p2'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('cc-msg').textContent = '';
+  document.getElementById('modal-cambiar-clave').classList.add('open');
+  document.getElementById('cc-actual').focus();
+}
+function cerrarCambiarClave() { document.getElementById('modal-cambiar-clave').classList.remove('open'); }
+
+async function cambiarMiClave() {
+  const actual = document.getElementById('cc-actual').value;
+  const p1 = document.getElementById('cc-p1').value;
+  const p2 = document.getElementById('cc-p2').value;
+  const msg = document.getElementById('cc-msg');
+  const btn = document.getElementById('cc-btn');
+  const err = t => { msg.style.color='var(--rojo,#8B1F1F)'; msg.textContent = t; };
+  if (DEMO || !sb) return err('No disponible en modo demo.');
+  if (!actual) return err('Ingresa tu contraseña actual.');
+  if (p1.length < 8 || !/[A-Za-z]/.test(p1) || !/\d/.test(p1)) return err('La nueva contraseña debe tener al menos 8 caracteres, con letras y números.');
+  if (p1 === actual) return err('La nueva contraseña debe ser distinta a la actual.');
+  if (p1 !== p2) return err('Las contraseñas no coinciden.');
+  btn.disabled = true; msg.style.color='var(--gris-700)'; msg.textContent = 'Guardando…';
+  try {
+    // Verifica la clave actual antes de permitir el cambio
+    const email = currentUser?.email;
+    const { error: e1 } = await sb.auth.signInWithPassword({ email, password: actual });
+    if (e1) return err('La contraseña actual no es correcta.');
+    const { error: e2 } = await sb.auth.updateUser({ password: p1 });
+    if (e2) return err('Error: ' + e2.message);
+    msg.style.color='var(--verde,#1E6B45)';
+    msg.textContent = 'Contraseña actualizada correctamente.';
+    setTimeout(cerrarCambiarClave, 1500);
+  } finally { btn.disabled = false; }
+}
+document.getElementById('cc-p2').addEventListener('keydown', ev => { if(ev.key==='Enter') cambiarMiClave(); });
+
 function doLogout() {
+  document.getElementById('user-dd')?.classList.remove('open');
   if (sb && !DEMO) sb.auth.signOut();
   document.getElementById('login-screen').style.display = 'flex';
   document.getElementById('app').style.display = 'none';
