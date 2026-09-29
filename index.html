@@ -161,6 +161,11 @@ tbody tr:hover td{background:var(--gris-50)}
 .field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--azul-med);box-shadow:0 0 0 3px rgba(37,99,168,.1)}
 .field textarea{min-height:70px;resize:vertical}
 .fr{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.bit-filtros{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.bit-filtros .field{margin-bottom:8px}
+.bit-diff td{vertical-align:top;font-size:12px;word-break:break-word}
+.bit-diff .ant{background:#FDEAEA;color:#8B1F1F}.bit-diff .nue{background:#E8F5EE;color:#1E6B45}
+tr.bit-click{cursor:pointer}tr.bit-click:hover td{background:var(--gris-50)}
 .upload-zone{border:2px dashed var(--gris-300);border-radius:var(--radio-md);padding:22px;text-align:center;cursor:pointer;transition:border-color .15s,background .15s}
 .upload-zone:hover{border-color:var(--azul-med);background:var(--azul-claro)}
 .upload-zone svg{width:30px;height:30px;stroke:var(--gris-300);fill:none;display:block;margin:0 auto 8px}
@@ -353,6 +358,9 @@ tbody tr:hover td{background:var(--gris-50)}
     <div class="nav-label">Administración</div>
     <div class="nav-item" data-p="subir" onclick="go('subir')">
       <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>Subir documento
+    </div>
+    <div class="nav-item" data-p="bitacora" onclick="go('bitacora')" style="display:none">
+      <svg viewBox="0 0 24 24"><path d="M12 8v4l3 2"/><circle cx="12" cy="12" r="9"/></svg>Bitácora
     </div>
   </div>
 
@@ -799,6 +807,36 @@ tbody tr:hover td{background:var(--gris-50)}
       </div>
     </div>
 
+    <div class="page" id="page-bitacora">
+      <div class="ph">
+        <div class="ph-text"><h1>Bitácora del sistema</h1><p>Trazabilidad de cambios en registros y uso del portal — cl. 7.5.3 ISO 9001:2015. Visible solo para Administrador.</p></div>
+        <button class="btn btn-s" onclick="exportarBitacora()">
+          <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Exportar Excel
+        </button>
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:14px">
+        <button class="btn btn-p btn-sm" id="bit-tab-cambios" onclick="bitTab('cambios')">Cambios en registros</button>
+        <button class="btn btn-s btn-sm" id="bit-tab-uso" onclick="bitTab('uso')">Uso del portal</button>
+      </div>
+      <div class="card" style="margin-bottom:14px">
+        <div class="bit-filtros">
+          <div class="field"><label>Desde</label><input type="date" id="bit-desde" onchange="cargarBitacora()" /></div>
+          <div class="field"><label>Hasta</label><input type="date" id="bit-hasta" onchange="cargarBitacora()" /></div>
+          <div class="field"><label>Usuario</label><select id="bit-usuario" onchange="renderBitacora()"><option value="">Todos</option></select></div>
+          <div class="field"><label>Módulo</label><select id="bit-modulo" onchange="renderBitacora()"><option value="">Todos</option></select></div>
+          <div class="field"><label>Acción</label><select id="bit-accion" onchange="renderBitacora()"><option value="">Todas</option></select></div>
+          <div class="field"><label>Buscar</label><input type="text" id="bit-buscar" placeholder="Texto libre…" oninput="renderBitacora()" /></div>
+        </div>
+        <div id="bit-resumen" style="font-size:12px;color:var(--gris-500)"></div>
+      </div>
+      <div class="card">
+        <div class="tw"><table>
+          <thead id="bit-thead"></thead>
+          <tbody id="bit-tbody"><tr><td style="text-align:center;padding:32px;color:var(--gris-500)">Cargando…</td></tr></tbody>
+        </table></div>
+      </div>
+    </div>
+
     <div class="page" id="page-subir">
       <div class="ph"><div class="ph-text"><h1>Subir documento</h1><p>Agrega un documento al SGC. Todos los campos marcados son obligatorios.</p></div></div>
       <div class="card" style="max-width:600px">
@@ -1095,6 +1133,13 @@ tbody tr:hover td{background:var(--gris-50)}
   </div>
 </div>
 
+<div class="modal-overlay" id="modal-bitacora">
+  <div class="modal" style="max-width:720px">
+    <div class="mh"><h2 id="bit-det-titulo">Detalle del cambio</h2><button class="mclose" onclick="document.getElementById('modal-bitacora').classList.remove('open')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+    <div class="mb" id="bit-det-cuerpo"></div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="modal-aud">
   <div class="modal">
     <div class="mh"><h2 id="modal-aud-title">Agregar auditoría</h2><button class="mclose" onclick="cerrarAud()"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
@@ -1322,6 +1367,9 @@ function aplicarRol() {
     if (itemIndicadores) itemIndicadores.style.display = 'none';
   }
 
+  const itemBitacora = document.querySelector('[data-p="bitacora"]');
+  if (itemBitacora) itemBitacora.style.display = esAdmin() ? '' : 'none';
+
   const badge = document.getElementById('rol-badge');
   if (badge) {
     badge.textContent = MI_ROL;
@@ -1389,8 +1437,10 @@ function go(p) {
     hallazgos: renderNC, reclamos: renderRec, auditoria: renderAud,
     revision: renderRevision, indicadores: renderKPI,
     temp: renderTemp, proveedores: renderProveedores,
-    capacitaciones: renderCapacitaciones
+    capacitaciones: renderCapacitaciones,
+    bitacora: () => esAdmin() ? cargarBitacora() : go('inicio')
   };
+  registrarUso('Acceso a módulo', p, PAGINAS[p] || p);
   if (fns[p]) fns[p]();
   if (['inicio','carpetas','todos','hallazgos','reclamos','auditoria','revision','indicadores','temp','proveedores','capacitaciones'].includes(p) && sb) {
     cargarDatos().then(() => { if (fns[p]) fns[p](); });
@@ -1506,8 +1556,10 @@ async function cambiarMiClave() {
 }
 document.getElementById('cc-p2').addEventListener('keydown', ev => { if(ev.key==='Enter') cambiarMiClave(); });
 
-function doLogout() {
+async function doLogout(motivo) {
   document.getElementById('user-dd')?.classList.remove('open');
+  await registrarUso('Cierre de sesión', 'auth', motivo === 'inactividad' ? 'Cierre automático por inactividad (30 min)' : 'Cierre de sesión manual');
+  ULTIMO_MODULO = null;
   if (sb && !DEMO) sb.auth.signOut();
   document.getElementById('login-screen').style.display = 'flex';
   document.getElementById('app').style.display = 'none';
@@ -1522,6 +1574,8 @@ async function iniciarApp() {
   document.getElementById('uname').textContent = nom;
   await cargarRol(currentUser?.id);
   aplicarRol();
+  ULTIMO_MODULO = null;
+  registrarUso('Inicio de sesión', 'auth', 'Ingreso al portal SGC');
   document.getElementById('wmsg').textContent =
     `Bienvenido, ${nom}. ISO 9001:2015 · NT 147 · NT 208 · Rol: ${MI_ROL}`;
   poblarSelectCarpetas();
@@ -3109,6 +3163,218 @@ async function delCurso(id) {
 }
 
 // ═══════════════════════════════════════
+// BITÁCORA (cambios en registros + uso del portal) — cl. 7.5.3
+// ═══════════════════════════════════════
+const PAGINAS = {
+  inicio:'Inicio', carpetas:'Carpetas', todos:'Todos los documentos', hallazgos:'Hallazgos / NC',
+  reclamos:'Reclamos', auditoria:'Auditorías', revision:'Revisión por la Dirección', indicadores:'Indicadores KPI',
+  capacitaciones:'Capacitaciones', temp:'Control de temperatura', flota:'Flota', proveedores:'Proveedores',
+  mantencion:'Mantención', subir:'Subir documento', bitacora:'Bitácora', auth:'Sesión'
+};
+const TABLAS_BIT = {
+  auditorias:'Auditorías', capacitacion_registros:'Registro de capacitaciones', capacitaciones:'Capacitaciones',
+  capacitacion_moodle:'Capacitaciones Moodle', documentos:'Documentos', hallazgos:'Hallazgos / NC',
+  kpi_indicadores:'Indicadores KPI', perfiles:'Usuarios y perfiles', proveedores:'Proveedores', reclamos:'Reclamos',
+  revision_direccion:'Revisión por la Dirección', temp_alertas:'Control de temperatura', rg47_eventos:'RG-47',
+  productos_rg35:'RG-35 Productos', flota_vehiculos:'Flota'
+};
+const ACCIONES_BIT = { INSERT:'Creó', UPDATE:'Modificó', DELETE:'Eliminó' };
+
+let ULTIMO_MODULO = null;
+async function registrarUso(accion, modulo, detalle) {
+  if (!sb || DEMO || !currentUser) return;
+  if (accion === 'Acceso a módulo') {           // evita duplicados al recargar la misma pantalla
+    if (ULTIMO_MODULO === modulo) return;
+    ULTIMO_MODULO = modulo;
+  }
+  try {
+    await sb.from('bitacora_uso').insert({
+      usuario_email: currentUser.email,
+      usuario_nombre: currentUser.nombre || currentUser.email?.split('@')[0],
+      rol: MI_ROL, accion, modulo, detalle
+    });
+  } catch (e) { console.warn('bitácora uso:', e); }   // nunca bloquea al usuario
+}
+
+const escB = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fHora = f => f ? new Date(f).toLocaleString('es-CL',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '—';
+const isoLocal = d => new Date(d.getTime() - d.getTimezoneOffset()*60000).toISOString().slice(0,10);
+
+let BIT = { tab:'cambios', cambios:[], uso:[] };
+
+function bitTab(t) {
+  BIT.tab = t;
+  document.getElementById('bit-tab-cambios').className = 'btn btn-sm ' + (t==='cambios' ? 'btn-p' : 'btn-s');
+  document.getElementById('bit-tab-uso').className     = 'btn btn-sm ' + (t==='uso' ? 'btn-p' : 'btn-s');
+  ['bit-usuario','bit-modulo','bit-accion'].forEach(id => document.getElementById(id).value = '');
+  llenarFiltrosBit();
+  renderBitacora();
+}
+
+async function cargarBitacora() {
+  if (!esAdmin()) return;
+  const d = document.getElementById('bit-desde'), h = document.getElementById('bit-hasta');
+  if (!d.value) { const x = new Date(); x.setDate(x.getDate()-30); d.value = isoLocal(x); }
+  if (!h.value) h.value = isoLocal(new Date());
+  const desde = new Date(d.value+'T00:00:00').toISOString();
+  const hasta = new Date(h.value+'T23:59:59').toISOString();
+  document.getElementById('bit-tbody').innerHTML = '<tr><td style="text-align:center;padding:32px;color:var(--gris-500)">Cargando…</td></tr>';
+  const [c, u] = await Promise.all([
+    sb.from('bitacora').select('*').gte('fecha',desde).lte('fecha',hasta).order('fecha',{ascending:false}).limit(5000),
+    sb.from('bitacora_uso').select('*').gte('created_at',desde).lte('created_at',hasta).order('created_at',{ascending:false}).limit(5000)
+  ]);
+  if (c.error || u.error) { toast('Error al cargar la bitácora: ' + (c.error||u.error).message); return; }
+  BIT.cambios = c.data || [];
+  BIT.uso = u.data || [];
+  llenarFiltrosBit();
+  renderBitacora();
+}
+
+// Texto corto que identifica el registro afectado
+function refRegistro(r) {
+  const v = r.valores_nuevos || r.valores_anteriores || {};
+  if (r.registro_id === 'carga masiva') return `Carga masiva (${v.filas ?? '?'} filas)`;
+  const k = ['codigo','correlativo','numero','patente','nombre','titulo','cliente','proveedor','email','descripcion','indicador'].find(x => v[x]);
+  let t = k ? String(v[k]) : '';
+  if (t.length > 60) t = t.slice(0,57) + '…';
+  return t || (r.registro_id ? 'ID ' + r.registro_id : '—');
+}
+
+function filasBit() {
+  const us = document.getElementById('bit-usuario').value;
+  const mo = document.getElementById('bit-modulo').value;
+  const ac = document.getElementById('bit-accion').value;
+  const q  = document.getElementById('bit-buscar').value.trim().toLowerCase();
+  if (BIT.tab === 'cambios') {
+    return BIT.cambios.filter(r =>
+      (!us || r.usuario_email === us) && (!mo || r.tabla === mo) && (!ac || r.accion === ac) &&
+      (!q || JSON.stringify(r).toLowerCase().includes(q)));
+  }
+  return BIT.uso.filter(r =>
+    (!us || r.usuario_email === us) && (!mo || r.modulo === mo) && (!ac || r.accion === ac) &&
+    (!q || JSON.stringify(r).toLowerCase().includes(q)));
+}
+
+function llenarFiltrosBit() {
+  const datos = BIT.tab === 'cambios' ? BIT.cambios : BIT.uso;
+  const llenar = (id, vals, etiqueta, todos) => {
+    const sel = document.getElementById(id), actual = sel.value;
+    sel.innerHTML = `<option value="">${todos}</option>` +
+      [...new Set(vals.filter(Boolean))].sort().map(v => `<option value="${escB(v)}">${escB(etiqueta(v))}</option>`).join('');
+    sel.value = actual;
+  };
+  llenar('bit-usuario', datos.map(r => r.usuario_email), v => v, 'Todos');
+  if (BIT.tab === 'cambios') {
+    llenar('bit-modulo', datos.map(r => r.tabla), v => TABLAS_BIT[v] || v, 'Todos');
+    llenar('bit-accion', datos.map(r => r.accion), v => ACCIONES_BIT[v] || v, 'Todas');
+  } else {
+    llenar('bit-modulo', datos.map(r => r.modulo), v => PAGINAS[v] || v, 'Todos');
+    llenar('bit-accion', datos.map(r => r.accion), v => v, 'Todas');
+  }
+}
+
+function renderBitacora() {
+  const th = document.getElementById('bit-thead'), tb = document.getElementById('bit-tbody');
+  const f = filasBit();
+  const total = BIT.tab === 'cambios' ? BIT.cambios.length : BIT.uso.length;
+  const usuarios = new Set(f.map(r => r.usuario_email).filter(Boolean)).size;
+  document.getElementById('bit-resumen').textContent =
+    `${f.length} de ${total} eventos en el período · ${usuarios} usuario(s)` + (total >= 5000 ? ' · Se muestran los 5.000 más recientes; acota las fechas.' : '');
+  if (BIT.tab === 'cambios') {
+    th.innerHTML = '<tr><th>Fecha y hora</th><th>Usuario</th><th>Rol</th><th>Acción</th><th>Módulo</th><th>Registro</th><th></th></tr>';
+    if (!f.length) { tb.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--gris-500)">Sin cambios registrados con estos filtros.</td></tr>'; return; }
+    const cls = { INSERT:'b-ok', UPDATE:'b-azul', DELETE:'b-rojo' };
+    tb.innerHTML = f.map(r => `<tr class="bit-click" onclick="verCambioBit(${r.id})">
+      <td style="white-space:nowrap">${fHora(r.fecha)}</td>
+      <td>${escB(r.usuario_email || 'Sistema')}</td>
+      <td>${escB(r.rol || '—')}</td>
+      <td><span class="badge ${cls[r.accion]||'b-obs'}">${ACCIONES_BIT[r.accion] || escB(r.accion)}</span></td>
+      <td>${escB(TABLAS_BIT[r.tabla] || r.tabla)}</td>
+      <td>${escB(refRegistro(r))}</td>
+      <td style="color:var(--azul);font-size:12px;white-space:nowrap">Ver detalle ›</td></tr>`).join('');
+  } else {
+    th.innerHTML = '<tr><th>Fecha y hora</th><th>Usuario</th><th>Rol</th><th>Acción</th><th>Módulo</th><th>Detalle</th></tr>';
+    if (!f.length) { tb.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:32px;color:var(--gris-500)">Sin actividad registrada con estos filtros.</td></tr>'; return; }
+    const cls = { 'Inicio de sesión':'b-ok', 'Cierre de sesión':'b-obs' };
+    tb.innerHTML = f.map(r => `<tr>
+      <td style="white-space:nowrap">${fHora(r.created_at)}</td>
+      <td>${escB(r.usuario_nombre || '')}<div style="font-size:11px;color:var(--gris-500)">${escB(r.usuario_email)}</div></td>
+      <td>${escB(r.rol || '—')}</td>
+      <td><span class="badge ${cls[r.accion]||'b-azul'}">${escB(r.accion)}</span></td>
+      <td>${escB(PAGINAS[r.modulo] || r.modulo)}</td>
+      <td>${escB(r.detalle || '')}</td></tr>`).join('');
+  }
+}
+
+function valBit(v) {
+  if (v === null || v === undefined || v === '') return '<span style="color:var(--gris-500)">—</span>';
+  if (typeof v === 'object') v = JSON.stringify(v);
+  v = String(v);
+  return escB(v.length > 400 ? v.slice(0,397) + '…' : v);
+}
+
+function verCambioBit(id) {
+  const r = BIT.cambios.find(x => x.id === id);
+  if (!r) return;
+  const a = r.valores_anteriores || {}, n = r.valores_nuevos || {};
+  document.getElementById('bit-det-titulo').textContent =
+    `${ACCIONES_BIT[r.accion] || r.accion} · ${TABLAS_BIT[r.tabla] || r.tabla}`;
+  let filas;
+  if (r.accion === 'UPDATE') {
+    const claves = [...new Set([...Object.keys(a), ...Object.keys(n)])]
+      .filter(k => JSON.stringify(a[k]) !== JSON.stringify(n[k]));
+    filas = claves.length
+      ? `<table class="bit-diff"><thead><tr><th>Campo</th><th>Valor anterior</th><th>Valor nuevo</th></tr></thead><tbody>` +
+        claves.map(k => `<tr><td><strong>${escB(k)}</strong></td><td class="ant">${valBit(a[k])}</td><td class="nue">${valBit(n[k])}</td></tr>`).join('') +
+        '</tbody></table>'
+      : '<p style="font-size:13px;color:var(--gris-500)">Se guardó el registro sin cambios en sus campos.</p>';
+  } else {
+    const v = r.accion === 'DELETE' ? a : n;
+    const titulo = r.accion === 'DELETE' ? 'Datos del registro eliminado' : 'Datos del registro creado';
+    filas = `<table class="bit-diff"><thead><tr><th>Campo</th><th>${titulo}</th></tr></thead><tbody>` +
+      Object.keys(v).map(k => `<tr><td><strong>${escB(k)}</strong></td><td class="${r.accion==='DELETE'?'ant':'nue'}">${valBit(v[k])}</td></tr>`).join('') +
+      '</tbody></table>';
+  }
+  document.getElementById('bit-det-cuerpo').innerHTML = `
+    <div style="font-size:12px;color:var(--gris-700);margin-bottom:14px;line-height:1.7">
+      <strong>Fecha:</strong> ${fHora(r.fecha)}<br>
+      <strong>Usuario:</strong> ${escB(r.usuario_email || 'Sistema')} (${escB(r.rol || 'sin rol')})<br>
+      <strong>Registro:</strong> ${escB(refRegistro(r))} ${r.registro_id ? '· ID ' + escB(r.registro_id) : ''}
+    </div>
+    <div class="tw">${filas}</div>`;
+  document.getElementById('modal-bitacora').classList.add('open');
+}
+
+function exportarBitacora() {
+  if (typeof XLSX === 'undefined') { toast('La librería de Excel aún está cargando, intenta de nuevo.'); return; }
+  const f = filasBit();
+  if (!f.length) { toast('No hay eventos para exportar con estos filtros.'); return; }
+  let filas;
+  if (BIT.tab === 'cambios') {
+    filas = f.map(r => {
+      const a = r.valores_anteriores || {}, n = r.valores_nuevos || {};
+      const campos = r.accion === 'UPDATE'
+        ? [...new Set([...Object.keys(a), ...Object.keys(n)])].filter(k => JSON.stringify(a[k]) !== JSON.stringify(n[k]))
+            .map(k => `${k}: ${JSON.stringify(a[k] ?? null)} → ${JSON.stringify(n[k] ?? null)}`).join(' | ')
+        : '';
+      return { 'Fecha y hora': fHora(r.fecha), 'Usuario': r.usuario_email || 'Sistema', 'Rol': r.rol || '',
+               'Acción': ACCIONES_BIT[r.accion] || r.accion, 'Módulo': TABLAS_BIT[r.tabla] || r.tabla,
+               'Registro': refRegistro(r), 'ID registro': r.registro_id || '', 'Campos modificados': campos.slice(0, 32000) };
+    });
+  } else {
+    filas = f.map(r => ({ 'Fecha y hora': fHora(r.created_at), 'Usuario': r.usuario_nombre || '', 'Correo': r.usuario_email,
+                          'Rol': r.rol || '', 'Acción': r.accion, 'Módulo': PAGINAS[r.modulo] || r.modulo, 'Detalle': r.detalle || '' }));
+  }
+  const ws = XLSX.utils.json_to_sheet(filas);
+  ws['!cols'] = Object.keys(filas[0]).map(k => ({ wch: Math.min(60, Math.max(k.length, ...filas.slice(0,200).map(x => String(x[k]).length)) + 2) }));
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, BIT.tab === 'cambios' ? 'Cambios' : 'Uso del portal');
+  const d = document.getElementById('bit-desde').value, h = document.getElementById('bit-hasta').value;
+  XLSX.writeFile(wb, `Bitacora_${BIT.tab === 'cambios' ? 'Cambios' : 'Uso'}_${d}_a_${h}.xlsx`);
+  registrarUso('Exportación', 'bitacora', `Exportó ${filas.length} eventos de ${BIT.tab === 'cambios' ? 'cambios' : 'uso'} (${d} a ${h})`);
+}
+
+// ═══════════════════════════════════════
 // CIERRE DE SESIÓN POR INACTIVIDAD (30 min)
 // ═══════════════════════════════════════
 let inactividadTimer = null;
@@ -3118,7 +3384,7 @@ function resetInactividad() {
   clearTimeout(inactividadTimer);
   inactividadTimer = setTimeout(() => {
     toast('Sesión cerrada por inactividad.');
-    setTimeout(() => doLogout(), 2000);
+    setTimeout(() => doLogout('inactividad'), 2000);
   }, INACTIVIDAD_MS);
 }
 
