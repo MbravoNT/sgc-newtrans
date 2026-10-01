@@ -318,6 +318,9 @@ tr.bit-click{cursor:pointer}tr.bit-click:hover td{background:var(--gris-50)}
     <div class="nav-item" data-p="lm" onclick="go('lm')">
       <svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>Lista Maestra (LM-01) <span class="nav-pill np-rojo" id="lm-badge" style="display:none">0</span>
     </div>
+    <div class="nav-item" data-p="lm02" onclick="go('lm02')">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/></svg>Matriz de Registros (LM-02)
+    </div>
     <div class="nav-divider"></div>
     <div class="nav-label">ISO 9001 · NT 147</div>
     <div class="nav-item" data-p="hallazgos" onclick="go('hallazgos')">
@@ -502,6 +505,21 @@ tr.bit-click{cursor:pointer}tr.bit-click:hover td{background:var(--gris-50)}
       <div class="card"><div class="tw"><table>
         <thead id="lm-thead"></thead>
         <tbody id="lm-tbody"></tbody>
+      </table></div></div>
+    </div>
+
+    <div class="page" id="page-lm02">
+      <div class="ph">
+        <div class="ph-text"><h1>Matriz Maestra de Control y Retención de Registros · SGC-NEW-LM-02</h1><p>Responsables, soporte, acceso, recuperación, retención y disposición de cada registro · Cl. 7.5.3 ISO 9001:2015 · P-02.</p></div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <input type="text" id="lm02-q" placeholder="Buscar registro, procedimiento, custodio…" oninput="renderLM02()" style="padding:7px 10px;border:1px solid var(--gris-300);border-radius:var(--radio-sm);font-size:13px;min-width:240px" />
+          <button class="btn btn-s" onclick="exportarLM02()"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Exportar LM-02 (XLSX)</button>
+          <button class="btn btn-p" id="lm02-nuevo" onclick="abrirLM02()"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Nuevo registro</button>
+        </div>
+      </div>
+      <div class="card"><div class="tw"><table>
+        <thead><tr><th>Código</th><th>Registro / evidencia</th><th>Procedimiento</th><th>Custodio</th><th>Soporte</th><th>Retención</th><th>Vital</th><th>Estado</th><th>Acciones</th></tr></thead>
+        <tbody id="lm02-tbody"></tbody>
       </table></div></div>
     </div>
 
@@ -1354,6 +1372,17 @@ tr.bit-click{cursor:pointer}tr.bit-click:hover td{background:var(--gris-50)}
   </div>
 </div>
 
+<div class="modal-overlay" id="modal-lm02">
+  <div class="modal" style="max-width:860px">
+    <div class="mh"><h2 id="modal-lm02-title">Registro · Matriz LM-02</h2><button class="mclose" onclick="cerrarLM02()"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+    <div class="mb"><input type="hidden" id="lm02-id" /><div id="lm02-form"></div></div>
+    <div class="mf">
+      <button class="btn btn-s" onclick="cerrarLM02()">Cancelar</button>
+      <button class="btn btn-p" id="lm02-guardar" onclick="guardarLM02()">Guardar</button>
+    </div>
+  </div>
+</div>
+
 <div id="toast"></div>
 
 <script>
@@ -1441,7 +1470,7 @@ const toast = msg => {
 };
 const fFecha = f => f ? new Date(f+'T00:00:00').toLocaleDateString('es-CL',{day:'2-digit',month:'short',year:'numeric'}) : '—';
 const bEstado = e => {
-  const m = {'Vigente':'b-ok','En revisión':'b-rev','Obsoleto':'b-obs','Pendiente aprobación/publicación':'b-rev','Pendiente emisión':'b-rev','Borrador controlado':'b-rev'};
+  const m = {'Vigente':'b-ok','En revisión':'b-rev','Obsoleto':'b-obs','Pendiente aprobación/publicación':'b-rev','Pendiente emisión':'b-rev','Borrador controlado':'b-rev','Pendiente validar con proceso':'b-rev'};
   return `<span class="badge ${m[e]||'b-obs'}">${e}</span>`;
 };
 const bSev = s => {
@@ -1464,12 +1493,12 @@ function go(p) {
     hallazgos: renderNC, reclamos: renderRec, auditoria: renderAud,
     revision: renderRevision, indicadores: renderKPI,
     temp: renderTemp, proveedores: renderProveedores,
-    capacitaciones: renderCapacitaciones, lm: renderLM,
+    capacitaciones: renderCapacitaciones, lm: renderLM, lm02: renderLM02,
     bitacora: () => esAdmin() ? cargarBitacora() : go('inicio')
   };
   registrarUso('Acceso a módulo', p, PAGINAS[p] || p);
   if (fns[p]) fns[p]();
-  if (['inicio','carpetas','todos','lm','hallazgos','reclamos','auditoria','revision','indicadores','temp','proveedores','capacitaciones'].includes(p) && sb) {
+  if (['inicio','carpetas','todos','lm','lm02','hallazgos','reclamos','auditoria','revision','indicadores','temp','proveedores','capacitaciones'].includes(p) && sb) {
     cargarDatos().then(() => { if (fns[p]) fns[p](); });
   }
 }
@@ -1644,6 +1673,8 @@ async function cargarDatos() {
     if (cursosRes.data) CURSOS = cursosRes.data;
     if (capRes.data)    CAP_REGS = capRes.data;
     // ponytail: PostgREST devuelve máx. 1000 filas; si se suben muchos cursos, filtrar por curso en la consulta
+    const rm = await sb.from('registros_matriz').select('*').order('orden');
+    if (rm.data) LM02 = rm.data;
     const cm = await sb.from('capacitacion_moodle').select('id,curso,nombre,grupo,nota').order('id');
     if (cm.data) MOODLE = cm.data;
   } catch(e) {
@@ -3016,6 +3047,97 @@ function exportarLM() {
 }
 
 // ═══════════════════════════════════════
+// MATRIZ DE REGISTROS SGC-NEW-LM-02
+// ═══════════════════════════════════════
+// [campo, encabezado oficial, grupo] — mismo orden y textos que el XLSX controlado
+const LM02_COLS = [["codigo", "Código registro / formulario", "Identificación"], ["nombre", "Nombre del registro / evidencia", "Identificación"], ["proceso", "Proceso", "Identificación"], ["procedimiento", "Procedimiento de origen", "Identificación"], ["version_formulario", "Versión formulario", "Identificación"], ["generador", "Generador", "Responsabilidades"], ["revisor", "Revisor", "Responsabilidades"], ["aprobador", "Aprobador", "Responsabilidades"], ["custodio", "Custodio", "Responsabilidades"], ["admin_tecnico", "Administrador técnico", "Responsabilidades"], ["soporte", "Soporte", "Soporte y sistema"], ["formato", "Formato", "Soporte y sistema"], ["sistema", "Sistema / equipo", "Soporte y sistema"], ["ubicacion_oficial", "Ubicación oficial", "Soporte y sistema"], ["respaldo", "Copia de respaldo", "Soporte y sistema"], ["perfil_autorizado", "Perfil autorizado", "Acceso y protección"], ["confidencialidad", "Confidencialidad", "Acceso y protección"], ["control_integridad", "Control de integridad", "Acceso y protección"], ["registro_vital", "Registro vital", "Acceso y protección"], ["indice_busqueda", "Índice / clave de búsqueda", "Recuperación"], ["tiempo_recuperacion", "Tiempo objetivo de recuperación", "Recuperación"], ["resp_recuperacion", "Responsable de recuperación", "Recuperación"], ["retencion", "Retención", "Retención"], ["fundamento", "Fundamento", "Retención"], ["evento_inicio", "Evento inicio de cómputo", "Retención"], ["suspension_disposicion", "Suspensión de disposición", "Retención"], ["metodo_disposicion", "Método de disposición", "Disposición"], ["autoridad_disposicion", "Autoridad disposición", "Disposición"], ["evidencia_disposicion", "Evidencia requerida", "Disposición"], ["destino_final", "Destino final", "Disposición"], ["frecuencia_revision", "Frecuencia de revisión", "Revisión"], ["criterios_revision", "Criterios de revisión", "Revisión"], ["autoridad_revision", "Autoridad que revisa / aprueba", "Revisión"], ["estado", "Estado", "Control"], ["observaciones", "Observaciones", "Control"]];
+let LM02 = [];
+
+function renderLM02() {
+  document.getElementById('lm02-nuevo').style.display = esAdmin() ? '' : 'none';
+  const q = document.getElementById('lm02-q').value.trim().toLowerCase();
+  const rs = q ? LM02.filter(r => LM02_COLS.some(([k]) => (r[k]||'').toLowerCase().includes(q))) : LM02;
+  document.getElementById('lm02-tbody').innerHTML = rs.length ? rs.map(r => `<tr>
+      <td><span class="code">${escB(r.codigo)}</span></td>
+      <td><strong>${escB(r.nombre)}</strong><br><small style="color:var(--gris-500)">${escB(r.proceso)}</small></td>
+      <td>${escB(r.procedimiento)}</td><td>${escB(r.custodio)}</td><td>${escB(r.soporte)}</td>
+      <td>${escB(r.retencion)}</td><td>${r.registro_vital==='Sí'?'<span class="badge b-rojo">Sí</span>':escB(r.registro_vital)}</td>
+      <td>${r.estado ? bEstado(escB(r.estado)) : '—'}</td>
+      <td><div style="display:flex;gap:4px">
+        <button class="btn btn-s btn-sm" onclick="abrirLM02(${r.id})" title="${esAdmin()?'Editar':'Ver detalle'}">${esAdmin()?'✎':'Ver'}</button>
+        ${esAdmin()?`<button class="btn btn-r btn-sm" onclick="delLM02(${r.id})">✕</button>`:''}
+      </div></td></tr>`).join('')
+    : '<tr><td colspan="9" style="text-align:center;padding:28px;color:var(--gris-500)">Sin registros.</td></tr>';
+}
+
+function abrirLM02(id) {
+  const r = LM02.find(x => x.id === id) || {};
+  const ro = !esAdmin();
+  document.getElementById('lm02-id').value = r.id || '';
+  document.getElementById('modal-lm02-title').textContent = r.id ? `${r.codigo} — ${r.nombre}` : 'Nuevo registro · Matriz LM-02';
+  const grupos = [...new Set(LM02_COLS.map(c => c[2]))];
+  document.getElementById('lm02-form').innerHTML = grupos.map(g => `
+    <div style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--azul);margin:14px 0 6px;border-bottom:1px solid var(--gris-300);padding-bottom:4px">${g}</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));column-gap:12px">
+      ${LM02_COLS.filter(c => c[2]===g).map(([k,lbl]) => `<div class="field"><label>${lbl}${k==='codigo'||k==='nombre'?' *':''}</label>
+        <input type="text" data-lm02="${k}" value="${escB(r[k])}" ${ro?'disabled':''} /></div>`).join('')}
+    </div>`).join('');
+  document.getElementById('lm02-guardar').style.display = ro ? 'none' : '';
+  document.getElementById('modal-lm02').classList.add('open');
+}
+
+function cerrarLM02() { document.getElementById('modal-lm02').classList.remove('open'); }
+
+async function guardarLM02() {
+  const id = document.getElementById('lm02-id').value;
+  const row = {};
+  document.querySelectorAll('#lm02-form [data-lm02]').forEach(el => row[el.dataset.lm02] = el.value.trim() || null);
+  if (!row.codigo || !row.nombre) { toast('Código y nombre del registro son obligatorios.'); return; }
+  if (!id) row.orden = Math.max(0, ...LM02.map(r => r.orden || 0)) + 1;
+  const { error } = id ? await sb.from('registros_matriz').update(row).eq('id', id)
+                       : await sb.from('registros_matriz').insert([row]);
+  if (error) { toast('Error al guardar: ' + error.message); return; }
+  await cargarDatos(); cerrarLM02(); renderLM02();
+  toast(`"${row.nombre}" guardado en la matriz LM-02.`);
+}
+
+async function delLM02(id) {
+  const r = LM02.find(x => x.id === id);
+  if (!confirm(`¿Eliminar "${r?.nombre}" de la matriz LM-02?`)) return;
+  const { error } = await sb.from('registros_matriz').delete().eq('id', id);
+  if (error) { toast('Error al eliminar: ' + error.message); return; }
+  await cargarDatos(); renderLM02(); toast('Registro eliminado de la matriz.');
+}
+
+function exportarLM02() {
+  const hoy = new Date().toISOString().slice(0,10);
+  const lm = DOCS.find(d => d.codigo === 'SGC-NEW-LM-02') || {};
+  const control = [
+    ['MATRIZ MAESTRA DE CONTROL Y RETENCIÓN DE REGISTROS'],
+    ['Código','SGC-NEW-LM-02','Versión',lm.version||'','Fecha de emisión',hoy],
+    ['Propietario','Gerencia de Calidad y Procesos','Estado',lm.estado||'','Generado por',currentUser?.email||''],
+    ['Criterios de uso y control'],
+    ['Cada registro debe conservarse durante el plazo legal, regulatorio, sanitario, contractual, de cliente o de producto que resulte más extenso.'],
+    ['No se puede ejecutar disposición final mientras exista un reclamo, retiro, desviación, investigación, CAPA, auditoría, fiscalización, litigio, incidente de seguridad o requerimiento de cliente abierto.'],
+    ["Los campos no definidos expresamente por los procedimientos se dejan como 'Por definir / validar'."],
+    ['Copia descargada = copia no controlada. La versión oficial es la publicada en la plataforma SGC.']
+  ];
+  const grupoFila = LM02_COLS.map((c,i) => i===0 || c[2]!==LM02_COLS[i-1][2] ? c[2] : '');
+  const matriz = [['SGC-NEW-LM-02 · Matriz Maestra de Control y Retención de Registros'], grupoFila, LM02_COLS.map(c => c[1])]
+    .concat(LM02.map(r => LM02_COLS.map(([k]) => r[k] ?? '')));
+  const wb = XLSX.utils.book_new();
+  const wc = XLSX.utils.aoa_to_sheet(control); wc['!cols'] = [{wch:28},{wch:40},{wch:14},{wch:24},{wch:18},{wch:30}];
+  const wm = XLSX.utils.aoa_to_sheet(matriz);
+  wm['!cols'] = LM02_COLS.map((_,i) => ({ wch: i===1 ? 45 : 24 }));
+  wm['!merges'] = [];
+  LM02_COLS.forEach((c,i) => { if (grupoFila[i]) { let j = i; while (j+1 < LM02_COLS.length && !grupoFila[j+1]) j++; if (j>i) wm['!merges'].push({ s:{r:1,c:i}, e:{r:1,c:j} }); } });
+  XLSX.utils.book_append_sheet(wb, wc, 'Control');
+  XLSX.utils.book_append_sheet(wb, wm, 'Matriz de Registros');
+  XLSX.writeFile(wb, `SGC-NEW-LM-02_Matriz_Registros_${hoy}.xlsx`);
+  registrarUso('Exportación', 'lm02', 'Matriz de Registros LM-02');
+}
+
+// ═══════════════════════════════════════
 // CAPACITACIONES
 // ═══════════════════════════════════════
 let MOODLE = [], CM_SEL = '';
@@ -3287,14 +3409,14 @@ async function delCurso(id) {
 // BITÁCORA (cambios en registros + uso del portal) — cl. 7.5.3
 // ═══════════════════════════════════════
 const PAGINAS = {
-  inicio:'Inicio', carpetas:'Carpetas', todos:'Todos los documentos', lm:'Lista Maestra', hallazgos:'Hallazgos / NC',
+  inicio:'Inicio', carpetas:'Carpetas', todos:'Todos los documentos', lm:'Lista Maestra', lm02:'Matriz de Registros', hallazgos:'Hallazgos / NC',
   reclamos:'Reclamos', auditoria:'Auditorías', revision:'Revisión por la Dirección', indicadores:'Indicadores KPI',
   capacitaciones:'Capacitaciones', temp:'Control de temperatura', flota:'Flota', proveedores:'Proveedores',
   mantencion:'Mantención', subir:'Subir documento', bitacora:'Bitácora', auth:'Sesión'
 };
 const TABLAS_BIT = {
   auditorias:'Auditorías', capacitacion_registros:'Registro de capacitaciones', capacitaciones:'Capacitaciones',
-  capacitacion_moodle:'Capacitaciones Moodle', documentos:'Documentos', hallazgos:'Hallazgos / NC',
+  capacitacion_moodle:'Capacitaciones Moodle', documentos:'Documentos', registros_matriz:'Matriz de registros (LM-02)', hallazgos:'Hallazgos / NC',
   kpi_indicadores:'Indicadores KPI', perfiles:'Usuarios y perfiles', proveedores:'Proveedores', reclamos:'Reclamos',
   revision_direccion:'Revisión por la Dirección', temp_alertas:'Control de temperatura', rg47_eventos:'RG-47',
   productos_rg35:'RG-35 Productos', flota_vehiculos:'Flota'
