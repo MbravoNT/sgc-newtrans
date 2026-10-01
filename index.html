@@ -315,6 +315,9 @@ tr.bit-click{cursor:pointer}tr.bit-click:hover td{background:var(--gris-50)}
     <div class="nav-item" data-p="todos" onclick="go('todos')">
       <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Todos los documentos
     </div>
+    <div class="nav-item" data-p="lm" onclick="go('lm')">
+      <svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>Lista Maestra (LM-01) <span class="nav-pill np-rojo" id="lm-badge" style="display:none">0</span>
+    </div>
     <div class="nav-divider"></div>
     <div class="nav-label">ISO 9001 · NT 147</div>
     <div class="nav-item" data-p="hallazgos" onclick="go('hallazgos')">
@@ -471,7 +474,7 @@ tr.bit-click{cursor:pointer}tr.bit-click:hover td{background:var(--gris-50)}
           </select>
           <select id="f-estado" onchange="filtrarTodos()" style="padding:7px 10px;border:1px solid var(--gris-300);border-radius:var(--radio-sm);font-size:13px">
             <option value="">Todos los estados</option>
-            <option>Vigente</option><option>En revisión</option><option>Obsoleto</option>
+            <option>Borrador controlado</option><option>Pendiente emisión</option><option>Pendiente aprobación/publicación</option><option>En revisión</option><option>Vigente</option><option>Obsoleto</option>
           </select>
           <button class="btn btn-p" onclick="go('subir')"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Nuevo</button>
         </div>
@@ -479,6 +482,26 @@ tr.bit-click{cursor:pointer}tr.bit-click:hover td{background:var(--gris-50)}
       <div class="card"><div class="tw"><table>
         <thead><tr><th>Código</th><th>Nombre</th><th>Carpeta</th><th>Tipo</th><th>Responsable</th><th>Versión</th><th>Estado</th><th>Acciones</th></tr></thead>
         <tbody id="todos-tbody"></tbody>
+      </table></div></div>
+    </div>
+
+    <div class="page" id="page-lm">
+      <div class="ph">
+        <div class="ph-text"><h1>Lista Maestra de Documentos · SGC-LM-01</h1><p>Generada en vivo desde la plataforma, que es la fuente oficial. Revisión de vigencia al menos una vez al año · Cl. 7.5 ISO 9001:2015.</p></div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <select id="lm-estado" onchange="renderLM()" style="padding:7px 10px;border:1px solid var(--gris-300);border-radius:var(--radio-sm);font-size:13px">
+            <option value="">Todos los estados</option><option>Borrador controlado</option><option>Pendiente emisión</option><option>Pendiente aprobación/publicación</option><option>En revisión</option><option>Vigente</option><option>Obsoleto</option>
+          </select>
+          <button class="btn btn-s" onclick="exportarLM()"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Exportar LM-01 (XLSX)</button>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:14px">
+        <button class="btn btn-p btn-sm" id="lm-tab-Interno" onclick="lmTab('Interno')">Documentos internos</button>
+        <button class="btn btn-s btn-sm" id="lm-tab-Externo" onclick="lmTab('Externo')">Documentos externos</button>
+      </div>
+      <div class="card"><div class="tw"><table>
+        <thead id="lm-thead"></thead>
+        <tbody id="lm-tbody"></tbody>
       </table></div></div>
     </div>
 
@@ -856,7 +879,7 @@ tr.bit-click{cursor:pointer}tr.bit-click:hover td{background:var(--gris-50)}
               <option value="">Seleccionar…</option>
               <option>Política</option><option>Procedimiento</option><option>Instructivo</option>
               <option>Formato</option><option>Registro</option><option>Informe</option>
-              <option>Certificado</option><option>Acuerdo</option><option>Referencia externa</option><option>Otro</option>
+              <option>Certificado</option><option>Acuerdo</option><option>Lista maestra</option><option>Referencia externa</option><option>Otro</option>
             </select>
           </div>
         </div>
@@ -865,7 +888,7 @@ tr.bit-click{cursor:pointer}tr.bit-click:hover td{background:var(--gris-50)}
           <div class="field"><label>Fecha de emisión *</label><input type="date" id="d-fecha" /></div>
         </div>
         <div class="field"><label>Estado</label>
-          <select id="d-estado"><option>Vigente</option><option>En revisión</option><option>Obsoleto</option></select>
+          <select id="d-estado"><option>Borrador controlado</option><option>Pendiente emisión</option><option>Pendiente aprobación/publicación</option><option>En revisión</option><option>Vigente</option><option>Obsoleto</option></select>
         </div>
         <div class="field"><label>Descripción</label><textarea id="d-desc" placeholder="Breve descripción del documento y su alcance…"></textarea></div>
         <div class="field"><label>Archivo PDF</label>
@@ -1294,11 +1317,11 @@ tr.bit-click{cursor:pointer}tr.bit-click:hover td{background:var(--gris-50)}
           <select id="edit-doc-tipo">
             <option>Política</option><option>Procedimiento</option><option>Instructivo</option>
             <option>Formato</option><option>Registro</option><option>Informe</option>
-            <option>Certificado</option><option>Acuerdo</option><option>Referencia externa</option><option>Otro</option>
+            <option>Certificado</option><option>Acuerdo</option><option>Lista maestra</option><option>Referencia externa</option><option>Otro</option>
           </select>
         </div>
         <div class="field"><label>Estado</label>
-          <select id="edit-doc-estado"><option>Vigente</option><option>En revisión</option><option>Obsoleto</option></select>
+          <select id="edit-doc-estado"><option>Borrador controlado</option><option>Pendiente emisión</option><option>Pendiente aprobación/publicación</option><option>En revisión</option><option>Vigente</option><option>Obsoleto</option></select>
         </div>
       </div>
       <div class="fr">
@@ -1306,6 +1329,10 @@ tr.bit-click{cursor:pointer}tr.bit-click:hover td{background:var(--gris-50)}
         <div class="field"><label>Fecha de emisión</label><input type="date" id="edit-doc-fecha" /></div>
       </div>
       <div class="field"><label>Descripción</label><textarea id="edit-doc-desc" style="min-height:55px"></textarea></div>
+      <details style="margin:4px 0 12px;border:1px solid var(--gris-300);border-radius:var(--radio-sm);padding:8px 12px">
+        <summary style="cursor:pointer;font-size:13px;font-weight:600;color:var(--azul)">Control Lista Maestra (SGC-LM-01)</summary>
+        <div id="edit-doc-lm" style="margin-top:10px;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));column-gap:12px"></div>
+      </details>
       <div class="field">
         <label>Adjuntar / reemplazar PDF</label>
         <div class="upload-zone" onclick="document.getElementById('edit-doc-file').click()">
@@ -1414,7 +1441,7 @@ const toast = msg => {
 };
 const fFecha = f => f ? new Date(f+'T00:00:00').toLocaleDateString('es-CL',{day:'2-digit',month:'short',year:'numeric'}) : '—';
 const bEstado = e => {
-  const m = {'Vigente':'b-ok','En revisión':'b-rev','Obsoleto':'b-obs'};
+  const m = {'Vigente':'b-ok','En revisión':'b-rev','Obsoleto':'b-obs','Pendiente aprobación/publicación':'b-rev','Pendiente emisión':'b-rev','Borrador controlado':'b-rev'};
   return `<span class="badge ${m[e]||'b-obs'}">${e}</span>`;
 };
 const bSev = s => {
@@ -1437,12 +1464,12 @@ function go(p) {
     hallazgos: renderNC, reclamos: renderRec, auditoria: renderAud,
     revision: renderRevision, indicadores: renderKPI,
     temp: renderTemp, proveedores: renderProveedores,
-    capacitaciones: renderCapacitaciones,
+    capacitaciones: renderCapacitaciones, lm: renderLM,
     bitacora: () => esAdmin() ? cargarBitacora() : go('inicio')
   };
   registrarUso('Acceso a módulo', p, PAGINAS[p] || p);
   if (fns[p]) fns[p]();
-  if (['inicio','carpetas','todos','hallazgos','reclamos','auditoria','revision','indicadores','temp','proveedores','capacitaciones'].includes(p) && sb) {
+  if (['inicio','carpetas','todos','lm','hallazgos','reclamos','auditoria','revision','indicadores','temp','proveedores','capacitaciones'].includes(p) && sb) {
     cargarDatos().then(() => { if (fns[p]) fns[p](); });
   }
 }
@@ -1605,7 +1632,8 @@ async function cargarDatos() {
       sb.from('capacitaciones').select('*').order('nombre'),
       sb.from('capacitacion_registros').select('*').order('fecha_completado', { ascending: false })
     ]);
-    if (docsRes.data) DOCS = docsRes.data.map(d => ({ ...d, desc: d.descripcion }));
+    if (docsRes.data) DOCS = docsRes.data.map(d => ({ ...d, desc: d.descripcion }))
+    if (docsRes.data) lmBadge();
     if (ncsRes.data)  NCS  = ncsRes.data;
     if (recsRes.data) RECS = recsRes.data;
     if (audsRes.data) AUDS = audsRes.data;
@@ -2843,6 +2871,11 @@ function abrirEditDoc(id) {
   document.getElementById('edit-doc-responsable').value = d.responsable || '';
   document.getElementById('edit-doc-fecha').value = d.fecha_emision || '';
   document.getElementById('edit-doc-desc').value = d.descripcion || '';
+  document.getElementById('edit-doc-lm').innerHTML = LM_CAMPOS.filter(([k]) => !LM_SOLO_EXT.includes(k) || d.origen==='Externo').map(([k,lbl,t]) =>
+    `<div class="field"><label>${lbl}</label>${t==='origen'
+      ? `<select data-lm="${k}"><option>Interno</option><option>Externo</option></select>`
+      : `<input type="${t||'text'}" data-lm="${k}" />`}</div>`).join('');
+  document.querySelectorAll('#edit-doc-lm [data-lm]').forEach(el => el.value = d[el.dataset.lm] ?? (el.tagName==='SELECT' ? 'Interno' : ''));
   document.getElementById('edit-fname').textContent = '';
   document.getElementById('edit-doc-file').value = '';
   const urlEl = document.getElementById('edit-doc-url-actual');
@@ -2885,13 +2918,101 @@ async function guardarEditDoc() {
   }
 
   const updates = { codigo, nombre, version, tipo, estado, responsable, fecha_emision: fecha, descripcion: desc, url_archivo };
+  document.querySelectorAll('#edit-doc-lm [data-lm]').forEach(el => updates[el.dataset.lm] = el.value.trim() || null);
+  if (estado === 'Vigente' && updates.origen !== 'Externo' && !updates.fecha_vigencia) { toast('Un documento Vigente requiere fecha de vigencia (LM-01).'); return; }
   const { error } = await sb.from('documentos').update(updates).eq('id', id);
   if (error) { toast('Error al guardar: ' + error.message); return; }
 
   await cargarDatos();
   cerrarEditDoc();
   renderTodos(DOCS);
+  if (document.getElementById('page-lm').classList.contains('active')) renderLM();
   toast(`"${codigo} — ${nombre}" actualizado correctamente.`);
+}
+
+// ═══════════════════════════════════════
+// LISTA MAESTRA SGC-LM-01 (vista viva de la tabla documentos)
+// ═══════════════════════════════════════
+const LM_CAMPOS = [
+  ['origen','Origen','origen'], ['fecha_vigencia','Fecha de vigencia','date'], ['elaborado_por','Elaborado por'],
+  ['revision_tecnica','Revisión técnica'], ['verificacion_sgc','Verificación SGC'], ['aprobado_por','Aprobado por'],
+  ['formato_oficial','Formato oficial'], ['ubicacion_oficial','Ubicación oficial / acceso'], ['original_editable','Original editable / ubicación restringida'],
+  ['distribucion','Áreas afectadas / distribución'], ['comunicacion','Comunicación / capacitación'],
+  ['ultima_revision','Última revisión de vigencia / verificación','date'], ['version_reemplazada','Versión reemplazada'],
+  ['ubicacion_historico','Ubicación histórico / obsoleto'], ['observaciones','Observaciones'],
+  ['emisor','Emisor (externo)'], ['fuente_oficial','Fuente oficial (externo)'], ['restricciones','Restricciones / licencia (externo)'], ['impacto_cambios','Impacto a evaluar ante cambios (externo)']
+];
+const LM_SOLO_EXT = ['emisor','fuente_oficial','restricciones','impacto_cambios'];
+let LM_TAB = 'Interno';
+
+const lmProxima = d => {
+  if (!d.ultima_revision) return null;
+  const f = new Date(d.ultima_revision + 'T00:00:00'); f.setFullYear(f.getFullYear() + 1);
+  return f.toISOString().slice(0, 10);
+};
+// Vencida: próxima revisión pasada, o documento vigente sin revisión registrada
+const lmVencida = d => d.estado !== 'Obsoleto' && (lmProxima(d) ? lmProxima(d) < new Date().toISOString().slice(0,10) : d.estado === 'Vigente' || d.origen === 'Externo');
+
+function lmBadge() {
+  const b = document.getElementById('lm-badge'), n = DOCS.filter(lmVencida).length;
+  b.textContent = n; b.style.display = n ? '' : 'none';
+}
+
+function lmTab(t) {
+  LM_TAB = t;
+  ['Interno','Externo'].forEach(x => document.getElementById('lm-tab-'+x).className = 'btn btn-sm ' + (x===t ? 'btn-p' : 'btn-s'));
+  renderLM();
+}
+
+function renderLM() {
+  const est = document.getElementById('lm-estado').value;
+  const docs = DOCS.filter(d => (d.origen||'Interno') === LM_TAB && (!est || d.estado === est))
+                   .sort((a,b) => a.codigo.localeCompare(b.codigo, 'es', { numeric:true }));
+  lmBadge();
+  const prox = d => { const p = lmProxima(d); return lmVencida(d) ? `<span class="badge b-rojo">${p ? fFecha(p) : 'Sin revisión'}</span>` : fFecha(p); };
+  const edit = d => esGestor() ? `<button class="btn btn-s btn-sm" onclick="abrirEditDoc(${d.id})" title="Editar">✎</button>` : '';
+  const pdf = d => d.url_archivo ? `<button class="btn btn-s btn-sm" onclick="abrirPDF('${d.url_archivo}','${d.codigo} — ${d.nombre}')">PDF</button>` : '';
+  const ext = LM_TAB === 'Externo';
+  document.getElementById('lm-thead').innerHTML = ext
+    ? '<tr><th>Emisor</th><th>Documento externo</th><th>Referencia / versión</th><th>Fuente oficial</th><th>Estado</th><th>Última verificación</th><th>Próxima verificación</th><th>Acciones</th></tr>'
+    : '<tr><th>Código</th><th>Título</th><th>Tipo</th><th>Proceso / propietario</th><th>Versión</th><th>Vigencia</th><th>Estado</th><th>Aprobado por</th><th>Última revisión</th><th>Próxima revisión</th><th>Acciones</th></tr>';
+  document.getElementById('lm-tbody').innerHTML = docs.length ? docs.map(d => ext
+    ? `<tr><td>${d.emisor||'—'}</td><td><strong>${d.nombre}</strong></td><td>${d.version}</td><td>${d.fuente_oficial||'—'}</td>
+         <td>${bEstado(d.estado)}</td><td>${fFecha(d.ultima_revision)}</td><td>${prox(d)}</td><td><div style="display:flex;gap:4px">${pdf(d)}${edit(d)}</div></td></tr>`
+    : `<tr><td><span class="code">${d.codigo}</span></td><td><strong>${d.nombre}</strong></td><td>${d.tipo}</td><td>${d.responsable}</td>
+         <td>${d.version}</td><td>${fFecha(d.fecha_vigencia)}</td><td>${bEstado(d.estado)}</td><td>${d.aprobado_por||'—'}</td>
+         <td>${fFecha(d.ultima_revision)}</td><td>${prox(d)}</td><td><div style="display:flex;gap:4px">${pdf(d)}${edit(d)}</div></td></tr>`).join('')
+    : '<tr><td colspan="11" style="text-align:center;padding:28px;color:var(--gris-500)">Sin documentos.</td></tr>';
+}
+
+function exportarLM() {
+  const hoy = new Date().toISOString().slice(0,10);
+  const lmDoc = DOCS.find(d => d.codigo === 'SGC-LM-01') || {};
+  const orden = (a,b) => a.codigo.localeCompare(b.codigo, 'es', { numeric:true });
+  const x = v => v ?? '';
+  const control = [
+    ['LISTA MAESTRA DE DOCUMENTOS'],
+    ['Código','SGC-LM-01','Versión',x(lmDoc.version),'Fecha de emisión',hoy],
+    ['Propietario','Gerencia de Calidad y Procesos','Estado',x(lmDoc.estado),'Generado por',currentUser?.email||''],
+    ['Criterios de uso y control'],
+    ['La plataforma documental es la fuente oficial para consultar documentos vigentes; esta Lista Maestra se genera desde ella.'],
+    ['Solo el Encargado del SGC o su reemplazante autorizado debe actualizar la Lista Maestra y el estado documental.'],
+    ['La revisión de vigencia se realiza al menos una vez al año y también ante cambios regulatorios, operacionales, tecnológicos, contractuales o de clientes.'],
+    ['No se debe declarar un documento como vigente hasta completar revisión técnica, verificación SGC, aprobación y publicación.'],
+    ['Copia impresa o descargada = copia no controlada. Consultar siempre la plataforma.']
+  ];
+  const internos = [['Código','Título / nombre','Tipo documental','Proceso / propietario','Versión','Fecha del documento','Fecha de vigencia','Estado','Elaborado por','Revisión técnica','Verificación SGC','Aprobado por','Formato oficial','Ubicación oficial','Original editable / ubicación restringida','Áreas afectadas / distribución','Comunicación / capacitación','Última revisión de vigencia','Próxima revisión','Versión reemplazada','Ubicación histórico / obsoleto','Observaciones']]
+    .concat(DOCS.filter(d => (d.origen||'Interno') === 'Interno').sort(orden).map(d => [d.codigo,d.nombre,d.tipo,d.responsable,d.version,x(d.fecha_emision),x(d.fecha_vigencia),d.estado,x(d.elaborado_por),x(d.revision_tecnica),x(d.verificacion_sgc),x(d.aprobado_por),x(d.formato_oficial),x(d.ubicacion_oficial),x(d.original_editable),x(d.distribucion),x(d.comunicacion),x(d.ultima_revision),x(lmProxima(d)),x(d.version_reemplazada),x(d.ubicacion_historico),x(d.observaciones)]));
+  const externos = [['Emisor','Documento externo','Referencia / versión','Proceso responsable','Fuente oficial','Ubicación / acceso','Estado de vigencia','Última verificación','Próxima verificación','Restricciones / licencia','Impacto a evaluar ante cambios','Observaciones']]
+    .concat(DOCS.filter(d => d.origen === 'Externo').sort(orden).map(d => [x(d.emisor),d.nombre,d.version,d.responsable,x(d.fuente_oficial),x(d.ubicacion_oficial),d.estado,x(d.ultima_revision),x(lmProxima(d)),x(d.restricciones),x(d.impacto_cambios),x(d.observaciones)]));
+  const wb = XLSX.utils.book_new();
+  [['Control',control],['Documentos Internos',internos],['Documentos Externos',externos]].forEach(([n,a]) => {
+    const ws = XLSX.utils.aoa_to_sheet(a);
+    ws['!cols'] = a[a.length > 1 ? 1 : 0].map((_,i) => ({ wch: i < 2 ? 40 : 20 }));
+    XLSX.utils.book_append_sheet(wb, ws, n);
+  });
+  XLSX.writeFile(wb, `SGC-LM-01_Lista_Maestra_${hoy}.xlsx`);
+  registrarUso('Exportación', 'lm', 'Lista Maestra LM-01');
 }
 
 // ═══════════════════════════════════════
@@ -3166,7 +3287,7 @@ async function delCurso(id) {
 // BITÁCORA (cambios en registros + uso del portal) — cl. 7.5.3
 // ═══════════════════════════════════════
 const PAGINAS = {
-  inicio:'Inicio', carpetas:'Carpetas', todos:'Todos los documentos', hallazgos:'Hallazgos / NC',
+  inicio:'Inicio', carpetas:'Carpetas', todos:'Todos los documentos', lm:'Lista Maestra', hallazgos:'Hallazgos / NC',
   reclamos:'Reclamos', auditoria:'Auditorías', revision:'Revisión por la Dirección', indicadores:'Indicadores KPI',
   capacitaciones:'Capacitaciones', temp:'Control de temperatura', flota:'Flota', proveedores:'Proveedores',
   mantencion:'Mantención', subir:'Subir documento', bitacora:'Bitácora', auth:'Sesión'
