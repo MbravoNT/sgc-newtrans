@@ -298,6 +298,13 @@ tr.bit-click{cursor:pointer}tr.bit-click:hover td{background:var(--gris-50)}
   </div>
 </div>
 
+<div class="modal-overlay" id="modal-dialogo" role="dialog" aria-modal="true" aria-labelledby="dlg-msg">
+  <div class="modal" style="max-width:400px;height:auto;align-self:center;border-radius:var(--radio-lg)">
+    <div class="mb"><p id="dlg-msg" style="font-size:14px;color:var(--gris-900)"></p>
+      <div class="field" id="dlg-campo" style="margin-top:12px;display:none"><input type="text" id="dlg-input" /></div></div>
+    <div class="mf"><button class="btn btn-s" id="dlg-no">Cancelar</button><button class="btn btn-p" id="dlg-si">Aceptar</button></div>
+  </div>
+</div>
 <div class="modal-overlay" id="modal-recuperar">
   <div class="modal" style="max-width:380px">
     <div class="mh"><h2>Recuperar contraseña</h2><button class="mclose" onclick="cerrarRecuperar()"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
@@ -355,7 +362,7 @@ tr.bit-click{cursor:pointer}tr.bit-click:hover td{background:var(--gris-50)}
       <div class="cert-pill"><svg viewBox="0 0 24 24"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>ISO 9001:2015</div>
       <div class="cert-pill"><svg viewBox="0 0 24 24"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>NT 147</div>
       <div class="user-wrap">
-      <div class="user-menu" onclick="toggleUserMenu(event)">
+      <div class="user-menu" tabindex="0" role="button" onclick="toggleUserMenu(event)">
         <div class="user-avatar" id="uinit">--</div>
         <div class="user-name" id="uname">—</div>
         <span id="rol-badge" style="font-size:11px;font-weight:700;padding:2px 7px;border-radius:10px;border:1px solid rgba(255,255,255,0.2)">—</span>
@@ -371,66 +378,66 @@ tr.bit-click{cursor:pointer}tr.bit-click:hover td{background:var(--gris-50)}
   <div id="nav-scrim" onclick="document.body.classList.remove('nav-open')"></div>
   <div id="sidebar">
     <div class="nav-label">Principal</div>
-    <div class="nav-item active" data-p="inicio" onclick="go('inicio')">
+    <div class="nav-item active" data-p="inicio" tabindex="0" role="button" onclick="go('inicio')">
       <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Inicio
     </div>
-    <div class="nav-item" data-p="carpetas" onclick="go('carpetas')">
+    <div class="nav-item" data-p="carpetas" tabindex="0" role="button" onclick="go('carpetas')">
       <svg viewBox="0 0 24 24"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>Repositorio de documentos
     </div>
-    <div class="nav-item" data-p="todos" onclick="go('todos')">
+    <div class="nav-item" data-p="todos" tabindex="0" role="button" onclick="go('todos')">
       <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Todos los documentos
     </div>
-    <div class="nav-item" data-p="lm" onclick="go('lm')">
+    <div class="nav-item" data-p="lm" tabindex="0" role="button" onclick="go('lm')">
       <svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>Lista Maestra (LM-01) <span class="nav-pill np-rojo" id="lm-badge" style="display:none">0</span>
     </div>
-    <div class="nav-item" data-p="lm02" onclick="go('lm02')">
+    <div class="nav-item" data-p="lm02" tabindex="0" role="button" onclick="go('lm02')">
       <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/></svg>Matriz de Registros (LM-02)
     </div>
     <div class="nav-divider"></div>
     <div class="nav-label">ISO 9001 · NT 147</div>
-    <div class="nav-item" data-p="hallazgos" onclick="go('hallazgos')">
+    <div class="nav-item" data-p="hallazgos" tabindex="0" role="button" onclick="go('hallazgos')">
       <svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
       Hallazgos / NC <span class="nav-pill np-rojo" id="nc-badge">0</span>
     </div>
-    <div class="nav-item" data-p="reclamos" onclick="go('reclamos')">
+    <div class="nav-item" data-p="reclamos" tabindex="0" role="button" onclick="go('reclamos')">
       <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
       Reclamos <span class="nav-pill np-rojo" id="rec-badge">0</span>
     </div>
-    <div class="nav-item" data-p="auditoria" onclick="go('auditoria')">
+    <div class="nav-item" data-p="auditoria" tabindex="0" role="button" onclick="go('auditoria')">
       <svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
       Auditorías <span class="nav-pill np-azul" id="aud-badge">0</span>
     </div>
-    <div class="nav-item" data-p="revision" onclick="go('revision')">
+    <div class="nav-item" data-p="revision" tabindex="0" role="button" onclick="go('revision')">
       <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Revisión por la dirección
     </div>
-    <div class="nav-item" data-p="indicadores" onclick="go('indicadores')">
+    <div class="nav-item" data-p="indicadores" tabindex="0" role="button" onclick="go('indicadores')">
       <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Indicadores KPI
     </div>
     <div class="nav-divider"></div>
     <div class="nav-label">Módulos operacionales</div>
-    <div class="nav-item" data-p="capacitaciones" onclick="go('capacitaciones')">
+    <div class="nav-item" data-p="capacitaciones" tabindex="0" role="button" onclick="go('capacitaciones')">
       <svg viewBox="0 0 24 24"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
       Capacitaciones <span class="nav-pill np-azul" id="cap-badge">0</span>
     </div>
-    <div class="nav-item" data-p="temp" onclick="go('temp')">
+    <div class="nav-item" data-p="temp" tabindex="0" role="button" onclick="go('temp')">
       <svg viewBox="0 0 24 24"><path d="M14 14.76V3.5a2.5 2.5 0 00-5 0v11.26a4.5 4.5 0 105 0z"/></svg>Control de temperatura
       <span class="nav-pill np-rojo" id="temp-badge" style="display:none">!</span>
     </div>
-    <div class="nav-item" data-p="flota" onclick="go('flota')">
+    <div class="nav-item" data-p="flota" tabindex="0" role="button" onclick="go('flota')">
       <svg viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>Calificación de flota
     </div>
-    <div class="nav-item" data-p="proveedores" onclick="go('proveedores')">
+    <div class="nav-item" data-p="proveedores" tabindex="0" role="button" onclick="go('proveedores')">
       <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>Proveedores
     </div>
-    <div class="nav-item" data-p="mantencion" onclick="go('mantencion')">
+    <div class="nav-item" data-p="mantencion" tabindex="0" role="button" onclick="go('mantencion')">
       <svg viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg>Mantención
     </div>
     <div class="nav-divider"></div>
     <div class="nav-label">Administración</div>
-    <div class="nav-item" data-p="subir" onclick="go('subir')">
+    <div class="nav-item" data-p="subir" tabindex="0" role="button" onclick="go('subir')">
       <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>Subir documento
     </div>
-    <div class="nav-item" data-p="bitacora" onclick="go('bitacora')" style="display:none">
+    <div class="nav-item" data-p="bitacora" tabindex="0" role="button" onclick="go('bitacora')" style="display:none">
       <svg viewBox="0 0 24 24"><path d="M12 8v4l3 2"/><circle cx="12" cy="12" r="9"/></svg>Bitácora
     </div>
   </div>
@@ -975,7 +982,7 @@ tr.bit-click{cursor:pointer}tr.bit-click:hover td{background:var(--gris-50)}
         </div>
         <div class="field"><label>Descripción</label><textarea id="d-desc" placeholder="Breve descripción del documento y su alcance…"></textarea></div>
         <div class="field"><label>Archivo PDF</label>
-          <div class="upload-zone" onclick="document.getElementById('d-file').click()">
+          <div class="upload-zone" tabindex="0" role="button" onclick="document.getElementById('d-file').click()">
             <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
             <p><strong>Clic para seleccionar</strong> o arrastra el PDF aquí</p>
             <p id="fname" style="margin-top:6px;font-size:12px;color:var(--azul-med)"></p>
@@ -1418,7 +1425,7 @@ tr.bit-click{cursor:pointer}tr.bit-click:hover td{background:var(--gris-50)}
       </details>
       <div class="field">
         <label>Adjuntar / reemplazar PDF</label>
-        <div class="upload-zone" onclick="document.getElementById('edit-doc-file').click()">
+        <div class="upload-zone" tabindex="0" role="button" onclick="document.getElementById('edit-doc-file').click()">
           <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
           <p><strong>Clic para seleccionar PDF</strong> (opcional — solo si quieres adjuntar o reemplazar)</p>
           <p id="edit-fname" style="margin-top:6px;font-size:12px;color:var(--azul-med)"></p>
@@ -1848,7 +1855,7 @@ function renderCarpetas() {
   document.getElementById('folder-grid').innerHTML = CARPETAS.map(c => {
     const cnt = DOCS.filter(d=>d.carpeta_id===c.id).length;
     return `
-    <div class="folder-card" onclick="verCarpeta('${c.id}')">
+    <div class="folder-card" tabindex="0" role="button" onclick="verCarpeta('${c.id}')">
       <div class="folder-icon"><svg viewBox="0 0 24 24">${c.ico}</svg></div>
       <div style="flex:1;min-width:0">
         <div class="folder-name">${c.nombre}</div>
@@ -1914,7 +1921,7 @@ function filtrarTodos() {
 }
 
 async function delDoc(id) {
-  if (!confirm('¿Eliminar este documento del SGC?')) return;
+  if (!await confirmar('¿Eliminar este documento del SGC?')) return;
   const { error } = await sb.from('documentos').delete().eq('id', id);
   if (error) { toast('Error al eliminar: ' + error.message); return; }
   await cargarDatos();
@@ -2136,7 +2143,7 @@ async function guardarNC() {
 }
 
 async function cerrarNCid(id) {
-  if (!confirm('¿Cerrar este hallazgo?')) return;
+  if (!await confirmar('¿Cerrar este hallazgo?')) return;
   const { error } = await sb.from('hallazgos').update({estado:'Cerrada'}).eq('id', id);
   if (error) { toast('Error al cerrar hallazgo: ' + error.message); return; }
   await cargarDatos();
@@ -2435,7 +2442,7 @@ async function guardarRec() {
 }
 
 async function cerrarRecid(id) {
-  if (!confirm('¿Cerrar este reclamo?')) return;
+  if (!await confirmar('¿Cerrar este reclamo?')) return;
   const { error } = await sb.from('reclamos').update({estado:'Cerrado'}).eq('id', id);
   if (error) { toast('Error al cerrar reclamo: ' + error.message); return; }
   await cargarDatos();
@@ -2515,7 +2522,7 @@ async function guardarAud() {
 }
 
 async function delAud(id) {
-  if (!confirm('¿Eliminar esta auditoría del programa?')) return;
+  if (!await confirmar('¿Eliminar esta auditoría del programa?')) return;
   const { error } = await sb.from('auditorias').delete().eq('id', id);
   if (error) { toast('Error al eliminar: ' + error.message); return; }
   await cargarDatos();
@@ -2566,7 +2573,7 @@ function doSearch(q) {
   box.style.display = 'block';
   box.innerHTML = res.map(d=>{
     const c = CARPETAS.find(x=>x.id===d.carpeta_id);
-    return `<div class="sr-item" onclick="irDoc()">
+    return `<div class="sr-item" tabindex="0" role="button" onclick="irDoc()">
       <span class="code" style="flex-shrink:0">${d.codigo}</span>
       <div><div class="sr-name">${d.nombre}</div><div class="sr-meta">${c?c.nombre:'—'} · ${d.estado}</div></div>
       ${bEstado(d.estado)}
@@ -2745,7 +2752,7 @@ async function guardarKPI() {
 }
 
 async function delKPI(id) {
-  if (!confirm('¿Eliminar este indicador?')) return;
+  if (!await confirmar('¿Eliminar este indicador?')) return;
   const { error } = await sb.from('kpi_indicadores').delete().eq('id', id);
   if (error) { toast('Error: ' + error.message); return; }
   await cargarDatos();
@@ -2855,7 +2862,7 @@ async function guardarTemp() {
 }
 
 async function delTemp(id) {
-  if (!confirm('¿Eliminar esta alerta?')) return;
+  if (!await confirmar('¿Eliminar esta alerta?')) return;
   const { error } = await sb.from('temp_alertas').delete().eq('id', id);
   if (error) { toast('Error: ' + error.message); return; }
   await cargarDatos();
@@ -2946,7 +2953,7 @@ async function guardarProv() {
 }
 
 async function delProv(id) {
-  if (!confirm('¿Eliminar este proveedor?')) return;
+  if (!await confirmar('¿Eliminar este proveedor?')) return;
   const { error } = await sb.from('proveedores').delete().eq('id', id);
   if (error) { toast('Error: ' + error.message); return; }
   await cargarDatos();
@@ -3170,7 +3177,7 @@ async function guardarLM02() {
 
 async function delLM02(id) {
   const r = LM02.find(x => x.id === id);
-  if (!confirm(`¿Eliminar "${r?.nombre}" de la matriz LM-02?`)) return;
+  if (!await confirmar(`¿Eliminar "${r?.nombre}" de la matriz LM-02?`)) return;
   const { error } = await sb.from('registros_matriz').delete().eq('id', id);
   if (error) { toast('Error al eliminar: ' + error.message); return; }
   await cargarDatos(); renderLM02(); toast('Registro eliminado de la matriz.');
@@ -3219,7 +3226,7 @@ async function cargarMoodle(input) {
   const file = input.files[0]; input.value = '';
   if (!file) return;
   if (!window.XLSX) return toast('El lector de Excel aún está cargando, intenta de nuevo.');
-  const curso = prompt('Nombre del curso:', file.name.replace(/\.[^.]+$/, '').replace(/_?Calificaciones/i, '').replace(/_/g, ' ').trim());
+  const curso = await pedirTexto('Nombre del curso:', file.name.replace(/\.[^.]+$/, '').replace(/_?Calificaciones/i, '').replace(/_/g, ' ').trim());
   if (!curso) return;
   const wb = XLSX.read(await file.arrayBuffer());
   const filas = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { defval: null });
@@ -3270,7 +3277,7 @@ function renderMoodle(cursoForzado) {
     .sort((a, b) => a[1].ok / a[1].tot - b[1].ok / b[1].tot || b[1].tot - a[1].tot)
     .map(([g, v]) => {
       const pct = Math.round(100 * v.ok / v.tot);
-      return `<div class="cm-row ${CM_SEL === g ? 'sel' : ''}" onclick="CM_SEL=CM_SEL==='${g}'?'':'${g}';renderMoodle()" title="${v.ok} aprobados · ${v.tot - v.ok} pendientes">
+      return `<div class="cm-row ${CM_SEL === g ? 'sel' : ''}" tabindex="0" role="button" onclick="CM_SEL=CM_SEL==='${g}'?'':'${g}';renderMoodle()" title="${v.ok} aprobados · ${v.tot - v.ok} pendientes">
         <span>${cmNombreGrupo(g)}</span>
         <div class="cm-bar"><i style="width:${pct}%;background:var(--verde)"></i><i style="width:${100 - pct}%;background:var(--rojo)"></i></div>
         <span class="cm-pct">${v.ok}/${v.tot} · ${pct}%</span>
@@ -3421,7 +3428,7 @@ async function guardarRegCap() {
 }
 
 async function delRegCap(id) {
-  if (!confirm('¿Eliminar este registro?')) return;
+  if (!await confirmar('¿Eliminar este registro?')) return;
   const { error } = await sb.from('capacitacion_registros').delete().eq('id', id);
   if (error) { toast('Error: ' + error.message); return; }
   await cargarDatos();
@@ -3464,7 +3471,7 @@ async function guardarCurso() {
 }
 
 async function delCurso(id) {
-  if (!confirm('¿Eliminar este curso? Se eliminarán también todos sus registros.')) return;
+  if (!await confirmar('¿Eliminar este curso? Se eliminarán también todos sus registros.')) return;
   const { error } = await sb.from('capacitaciones').delete().eq('id', id);
   if (error) { toast('Error: ' + error.message); return; }
   await cargarDatos();
@@ -3594,7 +3601,7 @@ function renderBitacora() {
     th.innerHTML = '<tr><th>Fecha y hora</th><th>Usuario</th><th>Rol</th><th>Acción</th><th>Módulo</th><th>Registro</th><th></th></tr>';
     if (!f.length) { tb.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--gris-500)">Sin cambios registrados con estos filtros.</td></tr>'; return; }
     const cls = { INSERT:'b-ok', UPDATE:'b-azul', DELETE:'b-rojo' };
-    tb.innerHTML = f.map(r => `<tr class="bit-click" onclick="verCambioBit(${r.id})">
+    tb.innerHTML = f.map(r => `<tr class="bit-click" tabindex="0" role="button" onclick="verCambioBit(${r.id})">
       <td style="white-space:nowrap">${fHora(r.fecha)}</td>
       <td>${escB(r.usuario_email || 'Sistema')}</td>
       <td>${escB(r.rol || '—')}</td>
@@ -3822,6 +3829,33 @@ function exportarNCPDF(id) {
 }
 
 document.getElementById('d-fecha').value = new Date().toISOString().split('T')[0];
+</script>
+<script>
+// Diálogo propio: confirmar(msg) -> true/false ; pedirTexto(msg, valor) -> texto o null
+function dialogo(msg, conInput, valor, peligro) {
+  const ov = document.getElementById('modal-dialogo'), inp = document.getElementById('dlg-input'),
+        si = document.getElementById('dlg-si'), no = document.getElementById('dlg-no'), previo = document.activeElement;
+  document.getElementById('dlg-msg').textContent = msg;
+  document.getElementById('dlg-campo').style.display = conInput ? '' : 'none';
+  inp.value = valor || '';
+  si.textContent = peligro ? 'Eliminar' : 'Aceptar';
+  si.className = 'btn ' + (peligro ? 'btn-r' : 'btn-p');
+  ov.classList.add('open');
+  (conInput ? inp : no).focus();
+  return new Promise(res => {
+    const fin = v => { ov.classList.remove('open'); si.onclick = no.onclick = ov.onkeydown = null; previo?.focus?.(); res(v); };
+    si.onclick = () => fin(conInput ? inp.value.trim() || null : true);
+    no.onclick = () => fin(conInput ? null : false);
+    ov.onkeydown = e => { if (e.key === 'Escape') { e.stopPropagation(); no.onclick(); } if (e.key === 'Enter' && conInput) si.onclick(); };
+  });
+}
+const confirmar = msg => dialogo(msg, false, '', /^¿Eliminar/.test(msg));
+const pedirTexto = (msg, valor) => dialogo(msg, true, valor);
+// Enter/Espacio activan los elementos con role="button" que no son <button>
+document.addEventListener('keydown', e => {
+  const el = e.target;
+  if ((e.key === 'Enter' || e.key === ' ') && el.getAttribute?.('role') === 'button' && el.tagName !== 'BUTTON') { e.preventDefault(); el.click(); }
+});
 </script>
 </body>
 </html>
