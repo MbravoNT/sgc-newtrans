@@ -73,7 +73,7 @@ input,select,textarea{font-family:inherit;font-size:14px}
 .btn-login:hover{background:var(--naranjo-hov)}
 .login-error{font-size:12px;color:var(--rojo);margin-top:10px;text-align:center;display:none}
 .cert-strip{display:flex;gap:8px;margin-top:20px;padding-top:16px;border-top:1px solid var(--gris-100)}
-.cert-badge{flex:1;text-align:center;background:var(--gris-50);border:1px solid var(--gris-300);border-radius:var(--radio-sm);padding:6px;font-size:10px;font-weight:700;color:var(--gris-700)}
+.cert-badge{flex:1;text-align:center;background:var(--gris-50);border:1px solid var(--gris-300);border-radius:var(--radio-sm);padding:6px;font-size:11px;font-weight:700;color:var(--gris-700)}
 #topbar{position:fixed;top:0;left:0;right:0;height:var(--topbar-h);background:var(--azul);z-index:100;display:flex;align-items:center;padding:0 20px;gap:16px;border-bottom:1px solid rgba(255,255,255,.08)}
 .topbar-logo{display:flex;align-items:center;gap:10px;min-width:calc(var(--sidebar-w) - 20px)}
 .topbar-logo-icon{width:112px;height:30px;display:flex;align-items:center}
@@ -86,7 +86,7 @@ input,select,textarea{font-family:inherit;font-size:14px}
 .topbar-search input{background:transparent;border:none;outline:none;color:#fff;font-size:13px;width:100%}
 .topbar-search input::placeholder{color:rgba(255,255,255,.4)}
 .topbar-right{margin-left:auto;display:flex;align-items:center;gap:10px}
-.cert-pill{display:none;align-items:center;gap:6px;padding:4px 10px;border-radius:20px;font-size:10px;font-weight:700;border:1px solid rgba(255,255,255,.25);color:rgba(255,255,255,.85)}
+.cert-pill{display:none;align-items:center;gap:6px;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;border:1px solid rgba(255,255,255,.25);color:rgba(255,255,255,.85)}
 .cert-pill svg{width:12px;height:12px;stroke:currentColor;fill:none}
 .user-menu{display:flex;align-items:center;gap:8px;cursor:pointer;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:20px;padding:4px 12px 4px 4px}
 .user-avatar{width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff}
@@ -105,7 +105,7 @@ input,select,textarea{font-family:inherit;font-size:14px}
 .nav-item.active{background:var(--azul-2);color:#fff;font-weight:600}
 .nav-item.active::before{content:"";position:absolute;left:-10px;top:6px;bottom:6px;width:3px;border-radius:0 3px 3px 0;background:var(--naranjo)}
 .nav-item svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.8;flex-shrink:0}
-.nav-pill{margin-left:auto;font-size:10px;font-weight:700;padding:1px 6px;border-radius:10px;line-height:1.6}
+.nav-pill{margin-left:auto;font-size:11px;font-weight:700;padding:1px 6px;border-radius:10px;line-height:1.6}
 .np-rojo{background:#E5484D;color:#fff}
 .np-azul{background:rgba(255,255,255,.14);color:#fff}
 .nav-divider{height:1px;background:rgba(255,255,255,.08);margin:10px 12px}
@@ -138,7 +138,7 @@ table{width:100%;border-collapse:collapse;font-size:13px}
 thead th{text-align:left;font-size:12px;font-weight:600;color:var(--gris-500);padding:10px 12px;background:var(--blanco);border-bottom:1px solid var(--gris-300);white-space:nowrap}
 tbody td{padding:11px 12px;border-bottom:1px solid var(--gris-100);color:var(--gris-700);vertical-align:middle}
 tbody tr:last-child td{border-bottom:none}
-tbody tr:hover td{background:#F7F9FB}
+tbody tr:hover td{background:var(--gris-50)}
 .code{font-family:var(--fuente-c);font-size:13px;font-weight:600;background:var(--azul-claro);color:var(--azul);padding:2px 7px;border-radius:4px;white-space:nowrap;letter-spacing:.01em}
 .badge{display:inline-flex;align-items:center;font-size:11px;font-weight:600;padding:2px 8px;border-radius:12px;white-space:nowrap}
 .b-ok{background:var(--verde-claro);color:var(--verde);border:1px solid var(--verde-borde)}
@@ -160,7 +160,7 @@ tbody tr:hover td{background:#F7F9FB}
 .folder-icon svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
 .folder-name{font-family:var(--fuente-c);font-size:16px;font-weight:600;color:var(--gris-900);line-height:1.3}
 .folder-meta{font-size:11px;color:var(--gris-500);margin-top:3px}
-.folder-clausula{font-size:10px;font-weight:700;margin-top:5px}
+.folder-clausula{font-size:11px;font-weight:700;margin-top:5px}
 .nc-item{display:flex;align-items:flex-start;gap:11px;padding:11px 0;border-bottom:1px solid var(--gris-100)}
 .nc-item:last-child{border-bottom:none}
 .nc-bar{width:5px;border-radius:3px;align-self:stretch;min-height:38px;flex-shrink:0}
@@ -187,7 +187,7 @@ tbody tr:hover td{background:#F7F9FB}
 .bit-filtros{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
 .bit-filtros .field{margin-bottom:8px}
 .bit-diff td{vertical-align:top;font-size:12px;word-break:break-word}
-.bit-diff .ant{background:#FDEAEA;color:#8B1F1F}.bit-diff .nue{background:#E8F5EE;color:#1E6B45}
+.bit-diff .ant{background:var(--rojo-claro);color:var(--rojo)}.bit-diff .nue{background:var(--verde-claro);color:var(--verde)}
 tr.bit-click{cursor:pointer}tr.bit-click:hover td{background:var(--gris-50)}
 .upload-zone{border:2px dashed var(--gris-300);border-radius:var(--radio-md);padding:22px;text-align:center;cursor:pointer;transition:border-color .15s,background .15s}
 .upload-zone:hover{border-color:var(--naranjo);background:var(--naranjo-claro)}
@@ -358,7 +358,7 @@ tr.bit-click{cursor:pointer}tr.bit-click:hover td{background:var(--gris-50)}
       <div class="user-menu" onclick="toggleUserMenu(event)">
         <div class="user-avatar" id="uinit">--</div>
         <div class="user-name" id="uname">—</div>
-        <span id="rol-badge" style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px;border:1px solid rgba(255,255,255,0.2)">—</span>
+        <span id="rol-badge" style="font-size:11px;font-weight:700;padding:2px 7px;border-radius:10px;border:1px solid rgba(255,255,255,0.2)">—</span>
       </div>
       <div class="user-dd" id="user-dd">
         <button onclick="abrirCambiarClave()">Cambiar mi contraseña</button>
@@ -441,7 +441,7 @@ tr.bit-click{cursor:pointer}tr.bit-click:hover td{background:var(--gris-50)}
       <div class="ph"><div class="ph-text"><h1>Portal SGC — Newtrans Logistic</h1><p id="wmsg">Sistema de Gestión de Calidad certificado ISO 9001:2015 · NT 147 · NT 208</p></div></div>
       <div class="cert-banner" id="cert-banner">
         <div class="cert-card">
-          <div class="cert-card-ico" style="background:#EBF2FB;color:#1A3A5C">ISO</div>
+          <div class="cert-card-ico" style="background:var(--azul-claro);color:var(--azul)">ISO</div>
           <div style="flex:1"><div class="cert-card-name">ISO 9001:2015</div><div class="cert-card-det">Certificado vigente · Sistema de Gestión de Calidad</div></div>
           <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0">
             <span class="badge b-ok">Vigente</span>
@@ -451,7 +451,7 @@ tr.bit-click{cursor:pointer}tr.bit-click:hover td{background:var(--gris-50)}
           </div>
         </div>
         <div class="cert-card">
-          <div class="cert-card-ico" style="background:#E8F5EE;color:#1E6B45">NT</div>
+          <div class="cert-card-ico" style="background:var(--verde-claro);color:var(--verde)">NT</div>
           <div style="flex:1"><div class="cert-card-name">NT 147 — Buenas Prácticas de Distribución</div><div class="cert-card-det">Distribución farmacéutica · Certificado 2026</div></div>
           <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0">
             <span class="badge b-ok">Vigente</span>
@@ -461,7 +461,7 @@ tr.bit-click{cursor:pointer}tr.bit-click:hover td{background:var(--gris-50)}
           </div>
         </div>
         <div class="cert-card">
-          <div class="cert-card-ico" style="background:#FEF3DC;color:#7A4A00">NT</div>
+          <div class="cert-card-ico" style="background:var(--ambar-claro);color:var(--ambar)">NT</div>
           <div style="flex:1"><div class="cert-card-name">NT 208</div><div class="cert-card-det">Certificado de cumplimiento · 2025</div></div>
           <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0">
             <span class="badge b-ok">Vigente</span>
@@ -771,7 +771,7 @@ tr.bit-click{cursor:pointer}tr.bit-click:hover td{background:var(--gris-50)}
         </div>
         <div style="font-size:11px;color:var(--gris-500);margin-top:8px">
           <span style="display:inline-block;width:10px;height:10px;background:var(--verde);border-radius:2px;vertical-align:middle"></span> Aprobado
-          <span style="display:inline-block;width:10px;height:10px;background:#C0392B;border-radius:2px;vertical-align:middle;margin-left:10px"></span> Pendiente (sin nota)
+          <span style="display:inline-block;width:10px;height:10px;background:var(--rojo);border-radius:2px;vertical-align:middle;margin-left:10px"></span> Pendiente (sin nota)
           · Clic en una barra para ver sus pendientes
         </div>
         <div id="cm-pend" style="margin-top:12px"></div>
@@ -1853,7 +1853,7 @@ function renderCarpetas() {
       <div style="flex:1;min-width:0">
         <div class="folder-name">${c.nombre}</div>
         <div class="folder-meta">${c.desc}</div>
-        <div class="folder-clausula"><span class="badge b-azul" style="font-size:10px">${c.clausula}</span> <span style="font-size:11px;color:var(--gris-500)">${cnt} doc${cnt!==1?'s':''}</span></div>
+        <div class="folder-clausula"><span class="badge b-azul">${c.clausula}</span> <span style="font-size:11px;color:var(--gris-500)">${cnt} doc${cnt!==1?'s':''}</span></div>
       </div>
     </div>`;
   }).join('');
@@ -1930,7 +1930,7 @@ function renderNC() {
         <div class="nc-bar nb-${n.severidad==='Alta'?'alta':n.severidad==='Media'?'media':'baja'}"></div>
         <div class="nc-body">
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px">
-            <span class="code" style="font-size:10px">${n.correlativo||'—'}</span>
+            <span class="code" style="font-size:11px">${n.correlativo||'—'}</span>
             ${bSev(n.severidad)}
             ${n.estado==='Abierta'?'<span class="badge b-rev">Abierta</span>':'<span class="badge b-ok">Cerrada</span>'}
           </div>
@@ -2196,14 +2196,14 @@ function renderRec() {
   if (kNoEf)  kNoEf.textContent  = NCS.filter(n=>n.accion_efectiva===false).length;
 
   const bStatus = s => s==='R'
-    ? '<span class="badge b-ok" style="font-size:10px">R</span>'
-    : '<span class="badge b-rev" style="font-size:10px">P</span>';
+    ? '<span class="badge b-ok">R</span>'
+    : '<span class="badge b-rev">P</span>';
 
   const tbody = document.getElementById('rec-tbody');
   if (!tbody) return;
   tbody.innerHTML = data.length
     ? data.map((n,i) => `<tr>
-        <td><span class="code" style="font-size:10px">${n.correlativo||String(i+1).padStart(3,'0')}</span></td>
+        <td><span class="code" style="font-size:11px">${n.correlativo||String(i+1).padStart(3,'0')}</span></td>
         <td>${fFecha(n.fecha_deteccion||n.created_at)}</td>
         <td><strong>${n.cliente||n.origen||'—'}</strong></td>
         <td style="font-size:11px">${n.tipo_accion||'—'}</td>
@@ -2213,7 +2213,7 @@ function renderRec() {
         <td style="font-size:11px">${fFecha(n.fecha_termino_real)}</td>
         <td>${bStatus(n.status_plan||'P')}</td>
         <td>${bStatus(n.status_seguimiento||'P')}</td>
-        <td style="text-align:center">${n.accion_efectiva===true?'<span class="badge b-ok" style="font-size:10px">Sí</span>':n.accion_efectiva===false?'<span class="badge b-rojo" style="font-size:10px">No</span>':'<span class="badge b-obs" style="font-size:10px">—</span>'}</td>
+        <td style="text-align:center">${n.accion_efectiva===true?'<span class="badge b-ok">Sí</span>':n.accion_efectiva===false?'<span class="badge b-rojo">No</span>':'<span class="badge b-obs">—</span>'}</td>
         <td style="font-size:11px">${fFecha(n.fecha_cierre)}</td>
         <td><div style="display:flex;gap:3px">
           ${esGestor()?`<button class="btn btn-s btn-sm" onclick="abrirSeg(${n.id})">Seguimiento</button>`:''}
@@ -2339,18 +2339,19 @@ function exportarRG15PDF() {
       <td>${n.fecha_cierre ? new Date(n.fecha_cierre+'T00:00:00').toLocaleDateString('es-CL') : '—'}</td>
     </tr>`).join('');
 
-  const html = `<html><head><meta charset="UTF-8">
+  const html = `<!doctype html><html><head><meta charset="UTF-8">
   <style>
-    body{font-family:Arial,sans-serif;font-size:7px;margin:0;padding:10px;border-top:6px solid #2563A8}
-    .rg15-header{background:#1A3A5C;color:#fff;padding:8px 10px;display:flex;align-items:center;gap:10px;margin-bottom:10px}
+    @page{size:A4 landscape;margin:8mm}
+    body{font-family:Arial,sans-serif;font-size:8px;margin:0;padding:10px;border-top:6px solid #FF7C2A}
+    .rg15-header{background:#10293F;color:#fff;padding:8px 10px;display:flex;align-items:center;gap:10px;margin-bottom:10px}
     .rg15-header img{height:24px;background:#fff;border-radius:3px;padding:3px 6px}
     h2{font-size:11px;margin:0}
-    .sub{font-size:8px;color:#6B7280;margin-bottom:10px}
+    .sub{font-size:8px;color:#5A6B7E;margin-bottom:10px}
     table{width:100%;border-collapse:collapse}
-    th{background:#1A3A5C;color:white;padding:3px 4px;font-size:7px;text-align:center;border:1px solid #CBD0D8}
-    td{padding:3px 4px;border:1px solid #CBD0D8;vertical-align:top}
-    tr:nth-child(even){background:#F4F5F7}
-    .footer{margin-top:10px;font-size:7px;color:#6B7280;display:flex;justify-content:space-between}
+    th{background:#10293F;color:white;padding:3px 4px;font-size:8px;text-align:center;border:1px solid #D5DCE4}
+    td{padding:3px 4px;border:1px solid #D5DCE4;vertical-align:top;font-size:9px}
+    tr:nth-child(even){background:#F2F4F7}
+    .footer{margin-top:10px;font-size:8px;color:#5A6B7E;display:flex;justify-content:space-between}
   </style></head><body>
   <div class="rg15-header">
     <img alt="NewTrans" src="${LOGO_B64}" />
@@ -2452,7 +2453,7 @@ function renderAud() {
           <div class="as">${a.tipo}${a.clausulas?' · Cl. '+a.clausulas:''}${a.auditor?' · '+a.auditor:''}${a.alcance?' · '+a.alcance:''}</div>
         </div>
         <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
-          <span class="badge b-azul" style="font-size:10px">${fFecha(a.fecha)}</span>
+          <span class="badge b-azul">${fFecha(a.fecha)}</span>
           ${bAudEstado(a.estado)}
           ${esGestor()?`<button class="btn btn-s btn-sm" onclick="editarAud(${a.id})">Editar</button>`:''}
           ${esAdmin()?`<button class="btn btn-r btn-sm" onclick="delAud(${a.id})">✕</button>`:''}
@@ -3264,14 +3265,14 @@ function renderMoodle(cursoForzado) {
   const grupos = {};
   regs.forEach(r => { const g = grupos[r.grupo] ||= { tot: 0, ok: 0 }; g.tot++; if (r.nota != null) g.ok++; });
   const ok = regs.filter(r => r.nota != null).length;
-  resumen.innerHTML = `<strong>${Math.round(100 * ok / regs.length)}% de cumplimiento</strong> · ${ok} aprobados de ${regs.length} · <strong style="color:#C0392B">${regs.length - ok} pendientes</strong>`;
+  resumen.innerHTML = `<strong>${Math.round(100 * ok / regs.length)}% de cumplimiento</strong> · ${ok} aprobados de ${regs.length} · <strong style="color:var(--rojo)">${regs.length - ok} pendientes</strong>`;
   const barras = esCiudad => Object.entries(grupos).filter(([g]) => cmEsCiudad(g) === esCiudad)
     .sort((a, b) => a[1].ok / a[1].tot - b[1].ok / b[1].tot || b[1].tot - a[1].tot)
     .map(([g, v]) => {
       const pct = Math.round(100 * v.ok / v.tot);
       return `<div class="cm-row ${CM_SEL === g ? 'sel' : ''}" onclick="CM_SEL=CM_SEL==='${g}'?'':'${g}';renderMoodle()" title="${v.ok} aprobados · ${v.tot - v.ok} pendientes">
         <span>${cmNombreGrupo(g)}</span>
-        <div class="cm-bar"><i style="width:${pct}%;background:var(--verde)"></i><i style="width:${100 - pct}%;background:#C0392B"></i></div>
+        <div class="cm-bar"><i style="width:${pct}%;background:var(--verde)"></i><i style="width:${100 - pct}%;background:var(--rojo)"></i></div>
         <span class="cm-pct">${v.ok}/${v.tot} · ${pct}%</span>
       </div>`;
     }).join('') || '<div style="font-size:12px;color:var(--gris-500)">—</div>';
@@ -3327,7 +3328,7 @@ function renderCapacitaciones() {
               <div class="as">${c.tipo} · ${c.duracion_horas ? c.duracion_horas+'h' : '—'} · Vigencia: ${c.vigencia_meses} meses</div>
             </div>
             <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
-              <span class="badge b-azul" style="font-size:10px">${regs} registros</span>
+              <span class="badge b-azul">${regs} registros</span>
               <span class="badge ${c.tipo==='Obligatoria'?'b-rojo':'b-obs'}">${c.tipo}</span>
               ${esAdmin()?`<button class="btn btn-r btn-sm" onclick="delCurso(${c.id})">✕</button>`:''}
             </div>
@@ -3712,29 +3713,29 @@ function exportarNCPDF(id) {
   if (!n) return;
   const fPdf = d => d ? new Date(d+'T00:00:00').toLocaleDateString('es-CL') : '—';
 
-  const html = `
+  const html = `<!doctype html>
     <html><head><meta charset="UTF-8">
     <style>
-      body { font-family: Arial, sans-serif; font-size: 11px; color: #1C1F26; margin: 0; padding: 20px 20px 0; border-top: 6px solid #2563A8; }
-      .header { background: #1A3A5C; color: white; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 16px; }
+      body { font-family: Arial, sans-serif; font-size: 11px; color: #13202E; margin: 0; padding: 20px 20px 0; border-top: 6px solid #FF7C2A; }
+      .header { background: #10293F; color: white; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 16px; }
       .header-logo { background: #fff; border-radius: 4px; padding: 4px 8px; display: flex; align-items: center; flex-shrink: 0; }
       .header-logo img { height: 30px; display: block; }
       .header-title { font-size: 14px; font-weight: bold; flex: 1; }
       .header-code { font-size: 11px; opacity: 0.8; text-align: right; }
-      .correlativo { background: #EBF2FB; border-left: 4px solid #1A3A5C; padding: 8px 12px; margin-bottom: 16px; font-weight: bold; font-size: 13px; color: #1A3A5C; }
-      .seccion { background: #1A3A5C; color: white; padding: 5px 10px; font-size: 11px; font-weight: bold; margin: 14px 0 8px; }
+      .correlativo { background: #E6EEF6; border-left: 4px solid #10293F; padding: 8px 12px; margin-bottom: 16px; font-weight: bold; font-size: 13px; color: #10293F; }
+      .seccion { background: #10293F; color: white; padding: 5px 10px; font-size: 11px; font-weight: bold; margin: 14px 0 8px; }
       .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
       .campo { margin-bottom: 8px; }
-      .campo-label { font-size: 9px; font-weight: bold; color: #6B7280; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 2px; }
-      .campo-valor { border: 1px solid #CBD0D8; padding: 5px 8px; min-height: 22px; background: #F9FAFB; border-radius: 3px; }
-      .campo-textarea { border: 1px solid #CBD0D8; padding: 5px 8px; min-height: 50px; background: #F9FAFB; border-radius: 3px; white-space: pre-wrap; }
+      .campo-label { font-size: 9px; font-weight: bold; color: #5A6B7E; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 2px; }
+      .campo-valor { border: 1px solid #D5DCE4; padding: 5px 8px; min-height: 22px; background: #F2F4F7; border-radius: 3px; }
+      .campo-textarea { border: 1px solid #D5DCE4; padding: 5px 8px; min-height: 50px; background: #F2F4F7; border-radius: 3px; white-space: pre-wrap; }
       .badge-sev { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: bold; }
-      .badge-alta { background: #FDEAEA; color: #8B1F1F; border: 1px solid #E8AAAA; }
+      .badge-alta { background: #FCEAEA; color: #A1262B; border: 1px solid #E8AAAA; }
       .badge-media { background: #FEF3DC; color: #7A4A00; border: 1px solid #F0C97A; }
-      .badge-baja { background: #E8F5EE; color: #1E6B45; border: 1px solid #A3CFBA; }
-      .footer { margin-top: 20px; border-top: 1px solid #CBD0D8; padding-top: 8px; font-size: 9px; color: #6B7280; display: flex; justify-content: space-between; }
+      .badge-baja { background: #E7F4EC; color: #1E6B45; border: 1px solid #A3CFBA; }
+      .footer { margin-top: 20px; border-top: 1px solid #D5DCE4; padding-top: 8px; font-size: 9px; color: #5A6B7E; display: flex; justify-content: space-between; }
       .firmas { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-top: 16px; }
-      .firma { border-top: 1px solid #1A3A5C; padding-top: 6px; text-align: center; font-size: 9px; color: #6B7280; }
+      .firma { border-top: 1px solid #10293F; padding-top: 6px; text-align: center; font-size: 9px; color: #5A6B7E; }
     </style></head><body>
     <div class="header">
       <div class="header-logo"><img alt="NewTrans" src="${LOGO_B64}" /></div>
@@ -3797,7 +3798,7 @@ function exportarNCPDF(id) {
     ${(n.evidencia_urls||[]).length ? `
     <div class="seccion">EVIDENCIA</div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
-      ${n.evidencia_urls.map(u => `<img alt="Evidencia" src="${u}" style="width:110px;height:110px;object-fit:cover;border:1px solid #CBD0D8;border-radius:4px" />`).join('')}
+      ${n.evidencia_urls.map(u => `<img alt="Evidencia" src="${u}" style="width:110px;height:110px;object-fit:cover;border:1px solid #D5DCE4;border-radius:4px" />`).join('')}
     </div>` : ''}
 
     <div class="firmas">
